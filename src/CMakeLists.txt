@@ -1,3 +1,3 @@
 
-# TODO
+add_subdirectory(platformer)
 
