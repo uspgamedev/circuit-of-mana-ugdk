@@ -33,5 +33,18 @@ It generates an executable for each POV version of the prototype:
 
 ### On Windows
 
-TODO
+You will need the following software:
+
+  ```
+  CMake 2.8.11 (or higher)
+  Visual Studio 2013 (or newer)
+  ```
+
+After cloning this repository, run the cmake-gui utlity, point the "Where is the source code"
+to the repository root and the "Where to build the binaries" to any directory you wish.
+Recommended is a directory named "build".
+
+Then, press "Configure" and choose "Visual Studio 12 2013" (optionally Win64) and then "Generate".
+With that done, there should be a Visual Studio solution in the binary directory.
+ 
 
