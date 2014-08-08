@@ -1,6 +1,6 @@
 
-#ifndef UGD_CIRCUIT_TILEMAP_H_
-#define UGD_CIRCUIT_TILEMAP_H_
+#ifndef CIRCUITOFMANA_TILEMAP_H_
+#define CIRCUITOFMANA_TILEMAP_H_
 
 #include <ugdk/graphic.h>
 
@@ -10,24 +10,18 @@
 namespace circuit {
 
 class TileMap final {
-
   public:
-
-    using Ptr = std::shared_ptr<TileMap>;
-
+    using Ptr = std::unique_ptr<TileMap>;
+    ~TileMap();
     static Ptr Create(const std::string& name);
-
     void Render(ugdk::graphic::Canvas& canvas) const;
-
   private:
-
-    ugdk::graphic::TextureAtlas *atlas_;
-
     TileMap();
-
+    std::unique_ptr<ugdk::graphic::TextureAtlas>  tileset_;
+    std::unique_ptr<ugdk::graphic::Primitive>     map_primitive_;
 };
 
 } // namespace circuit
 
-#endif // UGD_CIRCUIT_TILEMAP_H_
+#endif // CIRCUITOFMANA_TILEMAP_H_
 

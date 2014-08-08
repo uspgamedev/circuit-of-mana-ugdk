@@ -5,6 +5,7 @@
 #include "tilemap.h"
 
 #include <ugdk/graphic.h>
+#include <utility>
 
 namespace circuit {
 
@@ -12,14 +13,13 @@ class Renderer {
 
   public:
 
-    Renderer(const TileMap::Ptr& the_tilemap) :
-        tilemap_(the_tilemap) {}
+    Renderer(const Renderer&) = delete;
+    Renderer(Renderer&& another);
+
+    Renderer(TileMap::Ptr&& the_tilemap) :
+        tilemap_(std::move(the_tilemap)) {}
 
     void Render(ugdk::graphic::Canvas& canvas);
-
-    void operator() (ugdk::graphic::Canvas& canvas) {
-        Render(canvas);
-    }
 
   protected:
 
