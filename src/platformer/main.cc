@@ -1,3 +1,6 @@
+
+#include "render.h"
+
 #include <ugdk/system/engine.h>
 #include <ugdk/action/scene.h>
 #include <ugdk/input/events.h>
@@ -5,6 +8,7 @@
 int main(int argc, char* argv[]) {
     assert(ugdk::system::Initialize());
     ugdk::action::Scene* ourscene = new ugdk::action::Scene;
+    ourscene->set_render_function(circuit::RenderGame);
     ourscene->event_handler().AddListener<ugdk::input::KeyPressedEvent>(
         [ourscene](const ugdk::input::KeyPressedEvent& ev) {
             if(ev.scancode == ugdk::input::Scancode::ESCAPE)
@@ -15,3 +19,4 @@ int main(int argc, char* argv[]) {
     ugdk::system::Release();
     return 0;
 }
+
