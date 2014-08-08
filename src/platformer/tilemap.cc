@@ -35,10 +35,12 @@ struct VertexXYUV {
 
 void DrawTileMap(const Primitive& map_primitive, ShaderUse& shader_use) {
     shared_ptr<const VertexData> data = map_primitive.vertexdata();
+
     shader_use.SendVertexBuffer(data->buffer().get(), VertexType::VERTEX, 0, 2, data->vertex_size());
     shader_use.SendVertexBuffer(data->buffer().get(), VertexType::TEXTURE, 0, 2, data->vertex_size());
+
     shader_use.SendTexture(0, map_primitive.texture());
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
 constexpr GLfloat TILESIZE = 1.0f;
@@ -52,25 +54,27 @@ TileMap::Ptr TileMap::Create(const string& name) {
     // Load tileset
     tilemap->tileset_.reset(TextureAtlas::LoadFromFile("spritesheets/"+name));
     // Create primitive
-    shared_ptr<VertexData> data(new VertexData(6u, sizeof(VertexXYUV), false));
+    shared_ptr<VertexData> data(new VertexData(4u, sizeof(VertexXYUV), false));
     tilemap->map_primitive_.reset(new Primitive(tilemap->tileset_->texture(), data));
     // Prepare primitive
     tilemap->map_primitive_->set_drawfunction(DrawTileMap);
-    data->CheckSizes("CreatingTileMap", 6, sizeof(VertexXYUV));
+    data->CheckSizes("CreatingTileMap", 4, sizeof(VertexXYUV));
     {
         VertexData::Mapper mapper(*data);
         mapper.Get<VertexXYUV>(0)->set_xyuv(.0f, .0f, .0f, .0f);
-        mapper.Get<VertexXYUV>(1)->set_xyuv(.0f, 1.0f, .0f, TILESIZE);
-        mapper.Get<VertexXYUV>(2)->set_xyuv(1.0f, .0f, TILESIZE, .0f);
-        mapper.Get<VertexXYUV>(3)->set_xyuv(.0f, 1.0f, .0f, TILESIZE);
-        mapper.Get<VertexXYUV>(4)->set_xyuv(1.0f, .0f, TILESIZE, .0f);
-        mapper.Get<VertexXYUV>(5)->set_xyuv(1.0f, 1.0f, TILESIZE, TILESIZE);
+        mapper.Get<VertexXYUV>(1)->set_xyuv(.0f, .5f, .0f, TILESIZE);
+        mapper.Get<VertexXYUV>(2)->set_xyuv(.5f, .0f, TILESIZE, .0f);
+        mapper.Get<VertexXYUV>(3)->set_xyuv(.5f, .5f, TILESIZE, TILESIZE);
     }
     return tilemap;
 }
 
 void TileMap::Render(Canvas& canvas) const {
     ShaderUse shader_use(manager()->shaders().current_shader());
+
+    shader_use.SendGeometry(canvas.current_geometry());
+    shader_use.SendEffect(canvas.current_visualeffect());
+
     map_primitive_->drawfunction()(*map_primitive_, shader_use);
 }
 
