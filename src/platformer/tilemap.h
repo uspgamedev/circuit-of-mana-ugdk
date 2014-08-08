@@ -10,12 +10,21 @@
 namespace circuit {
 
 class TileMap final {
+
   public:
+
     using Ptr = std::shared_ptr<TileMap>;
-    Ptr Create(const std::string& name);
-    void Draw(ugdk::graphic::Canvas& canvas) const;
+
+    static Ptr Create(const std::string& name);
+
+    void Render(ugdk::graphic::Canvas& canvas) const;
+
   private:
-    TileMap() {}
+
+    ugdk::graphic::TextureAtlas *atlas_;
+
+    TileMap();
+
 };
 
 } // namespace circuit

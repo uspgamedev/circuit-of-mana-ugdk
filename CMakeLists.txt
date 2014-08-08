@@ -12,7 +12,10 @@ else (EXISTS ${CMAKE_SOURCE_DIR}/local/ugdk)
           execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init
                           WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
       else(GIT_FOUND)
-          message(FATAL_ERROR "Git submodule 'externals/ugdk' not initialized and git not found.")
+          message(
+            FATAL_ERROR
+            "Git submodule 'externals/ugdk' not initialized and git not found."
+          )
       endif(GIT_FOUND)
   endif()
   set (UGDK_SUBDIR externals/ugdk)
@@ -25,4 +28,11 @@ endif ()
 add_subdirectory(${UGDK_SUBDIR})
 
 add_subdirectory(src)
+
+add_custom_target (
+  assets
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+          ${CMAKE_SOURCE_DIR}/assets/spritesheets
+          ${CMAKE_BINARY_DIR}/assets/spritesheets
+)
 
