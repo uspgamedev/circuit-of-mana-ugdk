@@ -62,8 +62,8 @@ TileMap::Ptr TileMap::Create(const string& name) {
         mapper.Get<VertexXYUV>(0)->set_xyuv(.0f, .0f, .0f, .0f);
         mapper.Get<VertexXYUV>(1)->set_xyuv(.0f, 1.0f, .0f, TILESIZE);
         mapper.Get<VertexXYUV>(2)->set_xyuv(1.0f, .0f, TILESIZE, .0f);
-        mapper.Get<VertexXYUV>(1)->set_xyuv(.0f, 1.0f, .0f, TILESIZE);
-        mapper.Get<VertexXYUV>(2)->set_xyuv(1.0f, .0f, TILESIZE, .0f);
+        mapper.Get<VertexXYUV>(3)->set_xyuv(.0f, 1.0f, .0f, TILESIZE);
+        mapper.Get<VertexXYUV>(4)->set_xyuv(1.0f, .0f, TILESIZE, .0f);
         mapper.Get<VertexXYUV>(5)->set_xyuv(1.0f, 1.0f, TILESIZE, TILESIZE);
     }
     return tilemap;
