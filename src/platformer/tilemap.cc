@@ -1,6 +1,8 @@
 
 #include "tilemap.h"
 
+#include <iostream>
+
 #include <ugdk/graphic/canvas.h>
 #include <ugdk/graphic/manager.h>
 #include <ugdk/graphic/module.h>
@@ -28,8 +30,11 @@ namespace {
 
 struct VertexXYUV {
     GLfloat x, y, u, v;
-    void set_xyuv(GLfloat the_x, GLfloat the_y, GLfloat the_u, GLfloat the_v) {
-      x = the_x, y = the_y, u = the_u, v = the_v;
+    void set_xyuv(GLfloat the_x, GLfloat the_y, GLfloat the_u, GLfloat the_v,
+                  const TextureAtlas::BoundPiece& piece) {
+        x = the_x, y = the_y;
+        piece.ConvertToAtlas(the_u, the_v, &u, &v);
+        std::cout << "x=" << x << "\ty=" << y << "\tu=" << u << "\tv=" << v << std::endl;
     }
 };
 
@@ -37,35 +42,44 @@ void DrawTileMap(const Primitive& map_primitive, ShaderUse& shader_use) {
     shared_ptr<const VertexData> data = map_primitive.vertexdata();
 
     shader_use.SendTexture(0, map_primitive.texture());
-    shader_use.SendVertexBuffer(data->buffer().get(), VertexType::VERTEX, 0, 2, data->vertex_size());
-    shader_use.SendVertexBuffer(data->buffer().get(), VertexType::TEXTURE, 2*sizeof(GLfloat), 2, data->vertex_size());
-
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    shader_use.SendVertexBuffer(data->buffer().get(), VertexType::VERTEX, 0, 2,
+                                data->vertex_size());
+    shader_use.SendVertexBuffer(data->buffer().get(), VertexType::TEXTURE,
+                                2*sizeof(GLfloat), 2, data->vertex_size());
+    glDrawArrays(GL_TRIANGLES, 0, data->num_vertices());
 }
 
-const GLfloat TEXSIZE = 1.0f;
-const GLfloat VEXSIZE = 100.0f;
+const GLfloat TILESIZE = 128.0f;
 
 } // unnamed namespace
 
 TileMap::~TileMap() {}
 
-TileMap::Ptr TileMap::Create(const string& name) {
+TileMap::Ptr TileMap::Create(const string& name, const Data& tiles) {
     Ptr tilemap(new TileMap);
+    size_t vertex_num = tiles.width*tiles.height*6;
     // Load tileset
     tilemap->tileset_.reset(TextureAtlas::LoadFromFile("spritesheets/"+name));
     // Create primitive
-    shared_ptr<VertexData> data(new VertexData(4u, sizeof(VertexXYUV), false));
+    shared_ptr<VertexData> data(new VertexData(vertex_num, sizeof(VertexXYUV), false));
     tilemap->map_primitive_.reset(new Primitive(tilemap->tileset_->texture(), data));
     // Prepare primitive
     tilemap->map_primitive_->set_drawfunction(DrawTileMap);
-    data->CheckSizes("CreatingTileMap", 4, sizeof(VertexXYUV));
-    {
-        VertexData::Mapper mapper(*data);
-        mapper.Get<VertexXYUV>(0)->set_xyuv(.0f, .0f, .0f, .0f);
-        mapper.Get<VertexXYUV>(1)->set_xyuv(.0f, VEXSIZE, .0f, TEXSIZE);
-        mapper.Get<VertexXYUV>(2)->set_xyuv(VEXSIZE, .0f, TEXSIZE, .0f);
-        mapper.Get<VertexXYUV>(3)->set_xyuv(VEXSIZE, VEXSIZE, TEXSIZE, TEXSIZE);
+    data->CheckSizes("CreatingTileMap", vertex_num, sizeof(VertexXYUV));
+    for (size_t i = 0; i < tiles.height; ++i)
+        for (size_t j = 0; j < tiles.width; ++j) {
+            VertexData::Mapper mapper(*data);
+            size_t offset = i*tiles.width+j;
+            float x = j*TILESIZE, y = i*TILESIZE;
+            TextureAtlas::BoundPiece piece = tilemap->tileset_->PieceAt(
+                    tiles.indices[offset]);
+            mapper.Get<VertexXYUV>(offset+0)->set_xyuv(x, y, .0f, .0f, piece);
+            mapper.Get<VertexXYUV>(offset+1)->set_xyuv(x, y+TILESIZE, .0f, 1.0f, piece);
+            mapper.Get<VertexXYUV>(offset+2)->set_xyuv(x+TILESIZE, y, 1.0f, .0f, piece);
+            mapper.Get<VertexXYUV>(offset+3)->set_xyuv(x, y+TILESIZE, .0f, 1.0f, piece);
+            mapper.Get<VertexXYUV>(offset+4)->set_xyuv(x+TILESIZE, y, 1.0f, .0f, piece);
+            mapper.Get<VertexXYUV>(offset+5)->set_xyuv(x+TILESIZE, y+TILESIZE,
+                                                       1.0f, 1.0f, piece);
     }
     return tilemap;
 }
