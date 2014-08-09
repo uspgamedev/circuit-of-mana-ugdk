@@ -27,7 +27,7 @@ add_custom_target (
   COMMAND ${GIT_EXECUTABLE} archive
           --remote=git://uspgamedev.org/circuit-ugdk-resources.git
           -o ${CMAKE_CURRENT_BINARY_DIR}/assets/resources.tar.gz
-          97d5ea8792a80d050a2e25b53927b71d85dcb03e resources/
+          54f04718d66a1fd8fa5ff76caa596edb5c4f2cf1 resources/
   COMMAND ${CMAKE_COMMAND} -E tar xf ${CMAKE_CURRENT_BINARY_DIR}/assets/resources.tar.gz
           WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/assets/
 )
