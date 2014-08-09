@@ -24,12 +24,21 @@ endif ()
 
 add_custom_target (
   assets
+  COMMAND ${CMAKE_COMMAND} -E remove_directory
+          ${CMAKE_CURRENT_BINARY_DIR}/assets/spritesheets
   COMMAND ${GIT_EXECUTABLE} archive
           --remote=git://uspgamedev.org/circuit-ugdk-resources.git
           -o ${CMAKE_CURRENT_BINARY_DIR}/assets/resources.tar.gz
-          54f04718d66a1fd8fa5ff76caa596edb5c4f2cf1 resources/
+          master resources/
   COMMAND ${CMAKE_COMMAND} -E tar xf ${CMAKE_CURRENT_BINARY_DIR}/assets/resources.tar.gz
           WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/assets/
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+          ${CMAKE_CURRENT_BINARY_DIR}/assets/resources/spritesheets/
+          ${CMAKE_CURRENT_BINARY_DIR}/assets/spritesheets/
+  COMMAND ${CMAKE_COMMAND} -E remove_directory
+          ${CMAKE_CURRENT_BINARY_DIR}/assets/resources/
+  COMMAND ${CMAKE_COMMAND} -E remove
+          ${CMAKE_CURRENT_BINARY_DIR}/assets/resources.tar.gz
 )
 
 add_subdirectory(${UGDK_SUBDIR})
