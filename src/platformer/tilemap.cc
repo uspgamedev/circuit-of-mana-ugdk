@@ -36,10 +36,10 @@ struct VertexXYUV {
 void DrawTileMap(const Primitive& map_primitive, ShaderUse& shader_use) {
     shared_ptr<const VertexData> data = map_primitive.vertexdata();
 
-    shader_use.SendVertexBuffer(data->buffer().get(), VertexType::VERTEX, 0, 2, data->vertex_size());
-    shader_use.SendVertexBuffer(data->buffer().get(), VertexType::TEXTURE, 0, 2, data->vertex_size());
-
     shader_use.SendTexture(0, map_primitive.texture());
+    shader_use.SendVertexBuffer(data->buffer().get(), VertexType::VERTEX, 0, 2, data->vertex_size());
+    shader_use.SendVertexBuffer(data->buffer().get(), VertexType::TEXTURE, 2*sizeof(GLfloat), 2, data->vertex_size());
+
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
