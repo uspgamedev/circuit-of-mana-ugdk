@@ -43,7 +43,8 @@ void DrawTileMap(const Primitive& map_primitive, ShaderUse& shader_use) {
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
-constexpr GLfloat TILESIZE = 1.0f;
+const GLfloat TEXSIZE = 1.0f;
+const GLfloat VEXSIZE = 100.0f;
 
 } // unnamed namespace
 
@@ -62,9 +63,9 @@ TileMap::Ptr TileMap::Create(const string& name) {
     {
         VertexData::Mapper mapper(*data);
         mapper.Get<VertexXYUV>(0)->set_xyuv(.0f, .0f, .0f, .0f);
-        mapper.Get<VertexXYUV>(1)->set_xyuv(.0f, .5f, .0f, TILESIZE);
-        mapper.Get<VertexXYUV>(2)->set_xyuv(.5f, .0f, TILESIZE, .0f);
-        mapper.Get<VertexXYUV>(3)->set_xyuv(.5f, .5f, TILESIZE, TILESIZE);
+        mapper.Get<VertexXYUV>(1)->set_xyuv(.0f, VEXSIZE, .0f, TEXSIZE);
+        mapper.Get<VertexXYUV>(2)->set_xyuv(VEXSIZE, .0f, TEXSIZE, .0f);
+        mapper.Get<VertexXYUV>(3)->set_xyuv(VEXSIZE, VEXSIZE, TEXSIZE, TEXSIZE);
     }
     return tilemap;
 }
