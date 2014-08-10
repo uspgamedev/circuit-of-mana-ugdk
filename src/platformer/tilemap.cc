@@ -42,7 +42,7 @@ struct VertexXYUV {
     }
 };
 
-const GLfloat TILESIZE = 128.0f;
+const GLfloat TILESIZE = 32.0f;
 
 struct Tile {
     VertexXYUV vertices[6];
