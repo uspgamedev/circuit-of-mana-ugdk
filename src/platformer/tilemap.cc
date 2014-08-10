@@ -66,20 +66,26 @@ TileMap::Ptr TileMap::Create(const string& name, const Data& tiles) {
     // Prepare primitive
     tilemap->map_primitive_->set_drawfunction(DrawTileMap);
     data->CheckSizes("CreatingTileMap", vertex_num, sizeof(VertexXYUV));
-    for (size_t i = 0; i < tiles.height; ++i)
-        for (size_t j = 0; j < tiles.width; ++j) {
-            VertexData::Mapper mapper(*data);
-            size_t offset = i*tiles.width+j;
-            float x = j*TILESIZE, y = i*TILESIZE;
-            TextureAtlas::BoundPiece piece = tilemap->tileset_->PieceAt(
-                    tiles.indices[offset]);
-            mapper.Get<VertexXYUV>(offset+0)->set_xyuv(x, y, .0f, .0f, piece);
-            mapper.Get<VertexXYUV>(offset+1)->set_xyuv(x, y+TILESIZE, .0f, 1.0f, piece);
-            mapper.Get<VertexXYUV>(offset+2)->set_xyuv(x+TILESIZE, y, 1.0f, .0f, piece);
-            mapper.Get<VertexXYUV>(offset+3)->set_xyuv(x, y+TILESIZE, .0f, 1.0f, piece);
-            mapper.Get<VertexXYUV>(offset+4)->set_xyuv(x+TILESIZE, y, 1.0f, .0f, piece);
-            mapper.Get<VertexXYUV>(offset+5)->set_xyuv(x+TILESIZE, y+TILESIZE,
-                                                       1.0f, 1.0f, piece);
+    {
+        VertexData::Mapper mapper(*data);
+        for (size_t i = 0; i < tiles.height; ++i)
+            for (size_t j = 0; j < tiles.width; ++j) {
+                size_t offset = i*tiles.width + j;
+                float x = j*TILESIZE, y = i*TILESIZE;
+                TextureAtlas::BoundPiece piece = tilemap->tileset_->PieceAt(
+                        tiles.indices[offset]);
+                mapper.Get<VertexXYUV>(offset+2)->set_xyuv(x+TILESIZE, y, 1.0f,
+                                                           .0f, piece);
+                mapper.Get<VertexXYUV>(offset+1)->set_xyuv(x, y, .0f, .0f, piece);
+                mapper.Get<VertexXYUV>(offset+0)->set_xyuv(x, y+TILESIZE,
+                                                           .0f, 1.0f, piece);
+                mapper.Get<VertexXYUV>(offset+5)->set_xyuv(x, y+TILESIZE,
+                                                           .0f, 1.0f, piece);
+                mapper.Get<VertexXYUV>(offset+4)->set_xyuv(x+TILESIZE, y+TILESIZE,
+                                                           1.0f, 1.0f, piece);
+                mapper.Get<VertexXYUV>(offset+3)->set_xyuv(x+TILESIZE, y, 1.0f,
+                                                           .0f, piece);
+            }
     }
     return tilemap;
 }

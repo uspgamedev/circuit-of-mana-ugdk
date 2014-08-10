@@ -26,9 +26,9 @@ using namespace std::placeholders;
 //};
 
 TileMap::Data data = {
-  2, 1,
+  3, 1,
   {
-    0, 1
+    0, 1, 2
   }
 };
 
