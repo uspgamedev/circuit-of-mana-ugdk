@@ -34,7 +34,6 @@ struct VertexXYUV {
                   const TextureAtlas::BoundPiece& piece) {
         x = the_x, y = the_y;
         piece.ConvertToAtlas(the_u, the_v, &u, &v);
-        std::cout << "x=" << x << "\ty=" << y << "\tu=" << u << "\tv=" << v << std::endl;
     }
 };
 
@@ -74,16 +73,16 @@ TileMap::Ptr TileMap::Create(const string& name, const Data& tiles) {
                 float x = j*TILESIZE, y = i*TILESIZE;
                 TextureAtlas::BoundPiece piece = tilemap->tileset_->PieceAt(
                         tiles.indices[offset]);
-                mapper.Get<VertexXYUV>(offset+2)->set_xyuv(x+TILESIZE, y, 1.0f,
+                mapper.Get<VertexXYUV>(6*offset+2)->set_xyuv(x+TILESIZE, y, 1.0f,
                                                            .0f, piece);
-                mapper.Get<VertexXYUV>(offset+1)->set_xyuv(x, y, .0f, .0f, piece);
-                mapper.Get<VertexXYUV>(offset+0)->set_xyuv(x, y+TILESIZE,
+                mapper.Get<VertexXYUV>(6*offset+1)->set_xyuv(x, y, .0f, .0f, piece);
+                mapper.Get<VertexXYUV>(6*offset+0)->set_xyuv(x, y+TILESIZE,
                                                            .0f, 1.0f, piece);
-                mapper.Get<VertexXYUV>(offset+5)->set_xyuv(x, y+TILESIZE,
+                mapper.Get<VertexXYUV>(6*offset+5)->set_xyuv(x, y+TILESIZE,
                                                            .0f, 1.0f, piece);
-                mapper.Get<VertexXYUV>(offset+4)->set_xyuv(x+TILESIZE, y+TILESIZE,
+                mapper.Get<VertexXYUV>(6*offset+4)->set_xyuv(x+TILESIZE, y+TILESIZE,
                                                            1.0f, 1.0f, piece);
-                mapper.Get<VertexXYUV>(offset+3)->set_xyuv(x+TILESIZE, y, 1.0f,
+                mapper.Get<VertexXYUV>(6*offset+3)->set_xyuv(x+TILESIZE, y, 1.0f,
                                                            .0f, piece);
             }
     }

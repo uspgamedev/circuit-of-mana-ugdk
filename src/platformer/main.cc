@@ -14,21 +14,14 @@ using circuit::Renderer;
 using std::bind;
 using namespace std::placeholders;
 
-//TileMap::Data data = {
-//  4, 5,
-//  {
-//    0,  1,  2,  3,
-//    12, 13, 14, 15,
-//    24, 25, 26, 27,
-//    36, 37, 38, 39,
-//    48, 49, 50, 51
-//  }
-//};
-
 TileMap::Data data = {
-  3, 1,
+  4, 5,
   {
-    0, 1, 2
+    0,  1,  2,  3,
+    12, 13, 14, 15,
+    24, 25, 26, 27,
+    36, 37, 38, 39,
+    48, 49, 50, 51
   }
 };
 
