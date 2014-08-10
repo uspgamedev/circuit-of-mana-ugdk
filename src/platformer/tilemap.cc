@@ -34,6 +34,29 @@ struct VertexXYUV {
                   const TextureAtlas::BoundPiece& piece) {
         x = the_x, y = the_y;
         piece.ConvertToAtlas(the_u, the_v, &u, &v);
+        show();
+    }
+    void show() const {
+        //std::cout << "x=" << x << "\ty=" << y
+        //          << "\tu=" << u << "\tv=" << v << std::endl;
+    }
+};
+
+const GLfloat TILESIZE = 128.0f;
+
+struct Tile {
+    VertexXYUV vertices[6];
+    void set_vertices(GLfloat x, GLfloat y, const TextureAtlas::BoundPiece& piece) {
+        vertices[0].set_xyuv(x+TILESIZE, y, 1.0f, .0f, piece);
+        vertices[1].set_xyuv(x, y, .0f, .0f, piece);
+        vertices[2].set_xyuv(x, y+TILESIZE, .0f, 1.0f, piece);
+        vertices[3].set_xyuv(x, y+TILESIZE, .0f, 1.0f, piece);
+        vertices[4].set_xyuv(x+TILESIZE, y+TILESIZE, 1.0f, 1.0f, piece);
+        vertices[5].set_xyuv(x+TILESIZE, y, 1.0f, .0f, piece);
+    }
+    void show() const {
+      for (size_t i = 0; i < 6; ++i)
+        vertices[i].show();
     }
 };
 
@@ -42,13 +65,13 @@ void DrawTileMap(const Primitive& map_primitive, ShaderUse& shader_use) {
 
     shader_use.SendTexture(0, map_primitive.texture());
     shader_use.SendVertexBuffer(data->buffer().get(), VertexType::VERTEX, 0, 2,
-                                data->vertex_size());
+                                data->vertex_size()/6);
     shader_use.SendVertexBuffer(data->buffer().get(), VertexType::TEXTURE,
-                                2*sizeof(GLfloat), 2, data->vertex_size());
-    glDrawArrays(GL_TRIANGLES, 0, data->num_vertices());
+                                2*sizeof(GLfloat), 2, data->vertex_size()/6);
+    glDrawArrays(GL_TRIANGLES, 0, data->num_vertices()*6);
 }
 
-const GLfloat TILESIZE = 128.0f;
+
 
 } // unnamed namespace
 
@@ -56,15 +79,15 @@ TileMap::~TileMap() {}
 
 TileMap::Ptr TileMap::Create(const string& name, const Data& tiles) {
     Ptr tilemap(new TileMap);
-    size_t vertex_num = tiles.width*tiles.height*6;
+    size_t tile_num = tiles.width*tiles.height;
     // Load tileset
     tilemap->tileset_.reset(TextureAtlas::LoadFromFile("spritesheets/"+name));
     // Create primitive
-    shared_ptr<VertexData> data(new VertexData(vertex_num, sizeof(VertexXYUV), false));
+    shared_ptr<VertexData> data(new VertexData(tile_num, sizeof(Tile), false));
     tilemap->map_primitive_.reset(new Primitive(tilemap->tileset_->texture(), data));
     // Prepare primitive
     tilemap->map_primitive_->set_drawfunction(DrawTileMap);
-    data->CheckSizes("CreatingTileMap", vertex_num, sizeof(VertexXYUV));
+    data->CheckSizes("CreatingTileMap", tile_num, sizeof(Tile));
     {
         VertexData::Mapper mapper(*data);
         for (size_t i = 0; i < tiles.height; ++i)
@@ -73,18 +96,10 @@ TileMap::Ptr TileMap::Create(const string& name, const Data& tiles) {
                 float x = j*TILESIZE, y = i*TILESIZE;
                 TextureAtlas::BoundPiece piece = tilemap->tileset_->PieceAt(
                         tiles.indices[offset]);
-                mapper.Get<VertexXYUV>(6*offset+2)->set_xyuv(x+TILESIZE, y, 1.0f,
-                                                           .0f, piece);
-                mapper.Get<VertexXYUV>(6*offset+1)->set_xyuv(x, y, .0f, .0f, piece);
-                mapper.Get<VertexXYUV>(6*offset+0)->set_xyuv(x, y+TILESIZE,
-                                                           .0f, 1.0f, piece);
-                mapper.Get<VertexXYUV>(6*offset+5)->set_xyuv(x, y+TILESIZE,
-                                                           .0f, 1.0f, piece);
-                mapper.Get<VertexXYUV>(6*offset+4)->set_xyuv(x+TILESIZE, y+TILESIZE,
-                                                           1.0f, 1.0f, piece);
-                mapper.Get<VertexXYUV>(6*offset+3)->set_xyuv(x+TILESIZE, y, 1.0f,
-                                                           .0f, piece);
+                mapper.Get<Tile>(offset)->set_vertices(x, y, piece);
             }
+        for (size_t i = 0; i < tile_num; ++i)
+            mapper.Get<Tile>(i)->show();
     }
     return tilemap;
 }
