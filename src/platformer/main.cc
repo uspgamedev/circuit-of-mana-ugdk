@@ -1,18 +1,20 @@
 
 #include "tilemap.h"
-#include "renderer.h"
-
-#include <ugdk/system/engine.h>
-#include <ugdk/action/scene.h>
-#include <ugdk/input/events.h>
+#include "body.h"
 
 #include <functional>
+#include <ugdk/action/scene.h>
+#include <ugdk/graphic/canvas.h>
+#include <ugdk/input/events.h>
+#include <ugdk/structure/types.h>
+#include <ugdk/system/engine.h>
 
-using ugdk::system::Configuration;
 using circuit::TileMap;
-using circuit::Renderer;
-using std::bind;
-using namespace std::placeholders;
+using circuit::Body;
+using ugdk::Color;
+using ugdk::graphic::Canvas;
+using ugdk::math::Vector2D;
+using ugdk::system::Configuration;
 
 namespace {
 
@@ -29,6 +31,16 @@ TileMap::Data data = {
   }
 };
 
+Body mage(Vector2D(2.0, 2.0));
+
+TileMap::Ptr tilemap;
+
+void Rendering(Canvas& canvas) {
+    canvas.Clear(Color(.4, .2, .2));
+    tilemap->Render(canvas);
+    mage.Render(canvas);
+}
+
 } // unnamed namespace
 
 int main(int argc, char* argv[]) {
@@ -36,8 +48,9 @@ int main(int argc, char* argv[]) {
     config.base_path = "assets/";
     assert(ugdk::system::Initialize(config));
     ugdk::action::Scene* ourscene = new ugdk::action::Scene;
-    Renderer renderer(TileMap::Create("sample", data));
-    ourscene->set_render_function(bind(&Renderer::Render, &renderer, _1));
+    tilemap = TileMap::Create("sample", data);
+    mage.Prepare();
+    ourscene->set_render_function(Rendering);
     ourscene->event_handler().AddListener<ugdk::input::KeyPressedEvent>(
         [ourscene](const ugdk::input::KeyPressedEvent& ev) {
             if(ev.scancode == ugdk::input::Scancode::ESCAPE)

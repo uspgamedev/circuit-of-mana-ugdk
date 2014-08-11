@@ -4,7 +4,7 @@ add_ugdk_executable(
   main.cc
   tilemap.cc
   tilemap.h
-  renderer.cc
-  renderer.h
+  body.cc
+  body.h
 )
 
