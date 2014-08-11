@@ -37,6 +37,11 @@ struct VertexXYUV {
 Body::Body(const ugdk::math::Vector2D& the_position)
         : position_(the_position), speed_(0.0, 0.0), body_primitive_(nullptr) {}
 
+void Body::Move(const double dt) {
+    position_ += speed_*dt;
+    speed_ *= 0.0;
+}
+
 void Body::Prepare() {
     shared_ptr<VertexData> data(new VertexData(4u, sizeof(VertexXYUV), false));
     body_primitive_.reset(new Primitive(manager()->white_texture(), data));

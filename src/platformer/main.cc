@@ -6,8 +6,10 @@
 #include <ugdk/action/scene.h>
 #include <ugdk/graphic/canvas.h>
 #include <ugdk/input/events.h>
+#include <ugdk/input/module.h>
 #include <ugdk/structure/types.h>
 #include <ugdk/system/engine.h>
+#include <ugdk/system/task.h>
 
 using circuit::TileMap;
 using circuit::Body;
@@ -15,8 +17,11 @@ using ugdk::Color;
 using ugdk::graphic::Canvas;
 using ugdk::math::Vector2D;
 using ugdk::system::Configuration;
+using ugdk::system::Task;
 
 namespace {
+
+const double MAGE_SPEED = 4.0;
 
 TileMap::Data data = {
   7, 7,
@@ -41,6 +46,19 @@ void Rendering(Canvas& canvas) {
     mage.Render(canvas);
 }
 
+void MoveMageTask(double dt) {
+    auto input = ugdk::input::manager();
+    if (input->keyboard().IsDown(ugdk::input::Scancode::UP))
+      mage.AddSpeed(MAGE_SPEED*Vector2D(0.0, -1.0));
+    if (input->keyboard().IsDown(ugdk::input::Scancode::DOWN))
+      mage.AddSpeed(MAGE_SPEED*Vector2D(0.0, 1.0));
+    if (input->keyboard().IsDown(ugdk::input::Scancode::RIGHT))
+      mage.AddSpeed(MAGE_SPEED*Vector2D(1.0, 0.0));
+    if (input->keyboard().IsDown(ugdk::input::Scancode::LEFT))
+      mage.AddSpeed(MAGE_SPEED*Vector2D(-1.0, 0.0));
+    mage.Move(dt);
+}
+
 } // unnamed namespace
 
 int main(int argc, char* argv[]) {
@@ -51,6 +69,7 @@ int main(int argc, char* argv[]) {
     tilemap = TileMap::Create("sample", data);
     mage.Prepare();
     ourscene->set_render_function(Rendering);
+    ourscene->AddTask(Task(MoveMageTask));
     ourscene->event_handler().AddListener<ugdk::input::KeyPressedEvent>(
         [ourscene](const ugdk::input::KeyPressedEvent& ev) {
             if(ev.scancode == ugdk::input::Scancode::ESCAPE)

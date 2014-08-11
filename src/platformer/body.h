@@ -18,6 +18,7 @@ class Body final {
     void AddSpeed(const double dx, const double dy) {
         AddSpeed(ugdk::math::Vector2D(dx, dy));
     }
+    void Move(const double dt);
     void Prepare();
     void Render(ugdk::graphic::Canvas& canvas) const;
   private:
