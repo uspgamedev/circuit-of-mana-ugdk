@@ -14,16 +14,22 @@ using circuit::Renderer;
 using std::bind;
 using namespace std::placeholders;
 
+namespace {
+
 TileMap::Data data = {
-  4, 5,
+  7, 7,
   {
-    0,  1,  2,  3,
-    12, 13, 14, 15,
-    24, 25, 26, 27,
-    36, 37, 38, 39,
-    48, 49, 50, 51
+    21, 21, 21, 21, 21, 21, 21,
+    21, 21, 21, 21, 21, 21, 21,
+    21,  0,  1,  1,  1,  3, 21,
+    21, 12, 13, 13, 13, 15, 21,
+    21, 24, 25, 25, 25, 27, 21,
+    21, 36, 37, 37, 37, 39, 21,
+    21, 21, 21, 21, 21, 21, 21,
   }
 };
+
+} // unnamed namespace
 
 int main(int argc, char* argv[]) {
     Configuration config;
