@@ -2,6 +2,7 @@
 #include "body.h"
 
 #include <ugdk/graphic/canvas.h>
+#include <ugdk/graphic/geometry.h>
 #include <ugdk/graphic/manager.h>
 #include <ugdk/graphic/module.h>
 #include <ugdk/graphic/textureatlas.h>
@@ -11,6 +12,7 @@
 namespace circuit {
 
 using ugdk::graphic::Canvas;
+using ugdk::graphic::Geometry;
 using ugdk::graphic::Manager;
 using ugdk::graphic::TextureAtlas;
 using ugdk::graphic::Primitive;
@@ -49,6 +51,8 @@ void Body::Render(Canvas& canvas) const {
     ShaderUse shader_use(manager()->shaders().current_shader());
     shared_ptr<const VertexData> data = body_primitive_->vertexdata();
 
+    canvas.PushAndCompose(Geometry(position_ * 32.0));
+
     shader_use.SendGeometry(canvas.current_geometry());
     shader_use.SendEffect(canvas.current_visualeffect());
 
@@ -58,6 +62,8 @@ void Body::Render(Canvas& canvas) const {
     shader_use.SendVertexBuffer(data->buffer().get(), VertexType::TEXTURE,
                                 2*sizeof(GLfloat), 2, data->vertex_size());
     glDrawArrays(GL_TRIANGLE_STRIP, 0, data->num_vertices());
+
+    canvas.PopGeometry();
 }
 
 } // namespace circuit
