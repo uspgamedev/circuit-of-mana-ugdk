@@ -38,6 +38,7 @@ TileMap::Ptr tilemap;
 void Rendering(Canvas& canvas) {
     canvas.Clear(Color(.4, .2, .2));
     tilemap->Render(canvas);
+    mage.Render(canvas);
 }
 
 } // unnamed namespace
@@ -48,6 +49,7 @@ int main(int argc, char* argv[]) {
     assert(ugdk::system::Initialize(config));
     ugdk::action::Scene* ourscene = new ugdk::action::Scene;
     tilemap = TileMap::Create("sample", data);
+    mage.Prepare();
     ourscene->set_render_function(Rendering);
     ourscene->event_handler().AddListener<ugdk::input::KeyPressedEvent>(
         [ourscene](const ugdk::input::KeyPressedEvent& ev) {
