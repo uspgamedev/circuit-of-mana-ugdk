@@ -1,6 +1,7 @@
 
 #include "body.h"
 
+#include <ugdk/math/integer2D.h>
 #include <ugdk/graphic/canvas.h>
 #include <ugdk/graphic/geometry.h>
 #include <ugdk/graphic/manager.h>
@@ -11,6 +12,8 @@
 
 namespace circuit {
 
+using ugdk::math::Integer2D;
+using ugdk::math::Vector2D;
 using ugdk::graphic::Canvas;
 using ugdk::graphic::Geometry;
 using ugdk::graphic::Manager;
@@ -21,6 +24,7 @@ using ugdk::graphic::opengl::ShaderUse;
 using ugdk::graphic::manager;
 using ugdk::graphic::opengl::VertexType;
 using std::shared_ptr;
+using std::unordered_set;
 
 namespace {
 
@@ -32,19 +36,46 @@ struct VertexXYUV {
     }
 };
 
+bool IsColliding(const Body::Space& space, const Vector2D& position) {
+    Integer2D tile_position(position);
+    return space.tiles[tile_position.y*space.width + tile_position.x] > 0;
+}
+
 } // unnamed namespace
 
+unordered_set<Body::Ptr> Body::bodies;
+
 Body::Body(const ugdk::math::Vector2D& the_position)
-        : position_(the_position), speed_(0.0, 0.0), body_primitive_(nullptr) {}
+        : position_(the_position), speed_(0.0, 0.0), force_(0.0, 0.0),
+          body_primitive_(nullptr) {}
+
+void Body::MoveAll(const Space& space, const double dt) {
+    for (auto& body : bodies) {
+      body->ApplyForce(Vector2D(0.0, 20.0));
+      body->ApplyForce(Vector2D(-5.0*body->speed_.x, 0));
+      body->speed_ += body->force_*dt;
+      if (IsColliding(space, body->position_ + body->speed_*dt)) {
+          Vector2D horizontal = Vector2D(body->speed_.x, 0.0),
+                   vertical = Vector2D(0.0, body->speed_.y);
+          if (!IsColliding(space, body->position_ + horizontal*dt))
+              body->position_ += horizontal*dt;
+          else if (!IsColliding(space, body->position_ + vertical*dt))
+              body->position_ += vertical*dt;
+      } else {
+          body->position_ += body->speed_*dt;
+      }
+      body->force_ *= 0;
+    }
+}
 
 void Body::Prepare() {
     shared_ptr<VertexData> data(new VertexData(4u, sizeof(VertexXYUV), false));
     body_primitive_.reset(new Primitive(manager()->white_texture(), data));
     VertexData::Mapper mapper(*data);
-    mapper.Get<VertexXYUV>(0)->set_xyuv(0.0f, 0.0f, 0.0f, 0.0f);
-    mapper.Get<VertexXYUV>(1)->set_xyuv(0.0f, 32.0f, 0.0f, 1.0f);
-    mapper.Get<VertexXYUV>(2)->set_xyuv(32.0f, 0.0f, 1.0f, 0.0f);
-    mapper.Get<VertexXYUV>(3)->set_xyuv(32.0f, 32.0f, 1.0f, 1.0f);
+    mapper.Get<VertexXYUV>(0)->set_xyuv(-16.0f, -32.0f, 0.0f, 0.0f);
+    mapper.Get<VertexXYUV>(1)->set_xyuv(-16.0f, 0.0f, 0.0f, 1.0f);
+    mapper.Get<VertexXYUV>(2)->set_xyuv(16.0f, -32.0f, 1.0f, 0.0f);
+    mapper.Get<VertexXYUV>(3)->set_xyuv(16.0f, 0.0f, 1.0f, 1.0f);
 }
 
 void Body::Render(Canvas& canvas) const {
