@@ -57,10 +57,16 @@ void Body::MoveAll(const Space& space, const double dt) {
       if (IsColliding(space, body->position_ + body->speed_*dt)) {
           Vector2D horizontal = Vector2D(body->speed_.x, 0.0),
                    vertical = Vector2D(0.0, body->speed_.y);
-          if (!IsColliding(space, body->position_ + horizontal*dt))
-              body->position_ += horizontal*dt;
-          else if (!IsColliding(space, body->position_ + vertical*dt))
+          if (IsColliding(space, body->position_ + horizontal*dt)) {
               body->position_ += vertical*dt;
+              body->speed_.x *= 0.0;
+          }
+          else if (IsColliding(space, body->position_ + vertical*dt)) {
+              body->position_ += horizontal*dt;
+              body->speed_.y *= 0.0;
+          } else {
+              body->speed_ *= 0.0;
+          }
       } else {
           body->position_ += body->speed_*dt;
       }
