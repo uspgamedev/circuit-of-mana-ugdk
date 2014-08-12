@@ -26,16 +26,29 @@ namespace {
 const double MAGE_SPEED = 4.0;
 
 TileMap::Data data = {
-  7, 7,
-  {
-    21, 21, 21, 21, 21, 21, 21,
-    21, 21, 21, 21, 21, 21, 21,
-    21,  0,  1,  1,  1,  3, 21,
-    21, 12, 13, 13, 13, 15, 21,
-    21, 24, 25, 25, 25, 27, 21,
-    21, 36, 37, 37, 37, 39, 21,
-    21, 21, 21, 21, 21, 21, 21,
-  }
+    7, 7,
+    {
+        21, 21, 21, 21, 21, 21, 21,
+        21, 21, 21, 21, 21, 21, 21,
+        21,  0,  1,  1,  1,  3, 21,
+        21, 12, 13, 13, 13, 15, 21,
+        21, 24, 25, 25, 25, 27, 21,
+        21, 36, 37, 37, 37, 39, 21,
+        21, 21, 21, 21, 21, 21, 21,
+    }
+};
+
+Body::Space space = {
+    7,
+    {
+        0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0,
+        0, 1, 1, 1, 1, 1, 0,
+        0, 1, 1, 1, 1, 1, 0,
+        0, 1, 1, 1, 1, 1, 0,
+        0, 0, 0, 0, 0, 0, 0,
+    }
 };
 
 Body::Ptr mage;
@@ -58,7 +71,7 @@ void MoveMageTask(double dt) {
       mage->AddSpeed(MAGE_SPEED*Vector2D(1.0, 0.0));
     if (input->keyboard().IsDown(ugdk::input::Scancode::LEFT))
       mage->AddSpeed(MAGE_SPEED*Vector2D(-1.0, 0.0));
-    Body::MoveAll(dt);
+    Body::MoveAll(space, dt);
 }
 
 } // unnamed namespace

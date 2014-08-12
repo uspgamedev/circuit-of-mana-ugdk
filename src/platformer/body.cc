@@ -1,6 +1,7 @@
 
 #include "body.h"
 
+#include <ugdk/math/integer2D.h>
 #include <ugdk/graphic/canvas.h>
 #include <ugdk/graphic/geometry.h>
 #include <ugdk/graphic/manager.h>
@@ -11,6 +12,8 @@
 
 namespace circuit {
 
+using ugdk::math::Integer2D;
+using ugdk::math::Vector2D;
 using ugdk::graphic::Canvas;
 using ugdk::graphic::Geometry;
 using ugdk::graphic::Manager;
@@ -33,6 +36,11 @@ struct VertexXYUV {
     }
 };
 
+bool IsColliding(const Body::Space& space, const Vector2D& position) {
+    Integer2D tile_position(position);
+    return space.tiles[tile_position.y*space.width + tile_position.x] > 0;
+}
+
 } // unnamed namespace
 
 unordered_set<Body::Ptr> Body::bodies;
@@ -40,9 +48,10 @@ unordered_set<Body::Ptr> Body::bodies;
 Body::Body(const ugdk::math::Vector2D& the_position)
         : position_(the_position), speed_(0.0, 0.0), body_primitive_(nullptr) {}
 
-void Body::MoveAll(const double dt) {
+void Body::MoveAll(const Space& space, const double dt) {
     for (auto& body : bodies) {
-      body->position_ += body->speed_*dt;
+      if (!IsColliding(space, body->position_ + body->speed_*dt))
+        body->position_ += body->speed_*dt;
       body->speed_ *= 0.0;
     }
 }

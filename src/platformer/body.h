@@ -4,6 +4,7 @@
 
 #include <memory>
 #include <unordered_set>
+#include <vector>
 #include <ugdk/math/vector2D.h>
 #include <ugdk/graphic/primitive.h>
 
@@ -12,6 +13,13 @@ namespace circuit {
 class Body final {
   public:
     using Ptr = std::shared_ptr<Body>;
+    struct Space {
+        size_t              width;
+        std::vector<size_t> tiles;
+    };
+    ugdk::math::Vector2D position() const {
+        return position_;
+    }
     void AddSpeed(const ugdk::math::Vector2D& diff) {
         speed_ += diff;
     }
@@ -25,7 +33,7 @@ class Body final {
         bodies.insert(new_body);
         return new_body;
     }
-    static void MoveAll(const double dt);
+    static void MoveAll(const Space& space, const double dt);
   private:
     Body(const ugdk::math::Vector2D& the_position);
     std::unique_ptr<ugdk::graphic::Primitive> body_primitive_;
