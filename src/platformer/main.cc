@@ -3,6 +3,7 @@
 #include "body.h"
 
 #include <functional>
+#include <memory>
 #include <ugdk/action/scene.h>
 #include <ugdk/graphic/canvas.h>
 #include <ugdk/input/events.h>
@@ -18,6 +19,7 @@ using ugdk::graphic::Canvas;
 using ugdk::math::Vector2D;
 using ugdk::system::Configuration;
 using ugdk::system::Task;
+using std::unique_ptr;
 
 namespace {
 
@@ -36,27 +38,27 @@ TileMap::Data data = {
   }
 };
 
-Body mage(Vector2D(2.0, 3.0));
+Body::Ptr mage;
 
 TileMap::Ptr tilemap;
 
 void Rendering(Canvas& canvas) {
     canvas.Clear(Color(.4, .2, .2));
     tilemap->Render(canvas);
-    mage.Render(canvas);
+    mage->Render(canvas);
 }
 
 void MoveMageTask(double dt) {
     auto input = ugdk::input::manager();
     if (input->keyboard().IsDown(ugdk::input::Scancode::UP))
-      mage.AddSpeed(MAGE_SPEED*Vector2D(0.0, -1.0));
+      mage->AddSpeed(MAGE_SPEED*Vector2D(0.0, -1.0));
     if (input->keyboard().IsDown(ugdk::input::Scancode::DOWN))
-      mage.AddSpeed(MAGE_SPEED*Vector2D(0.0, 1.0));
+      mage->AddSpeed(MAGE_SPEED*Vector2D(0.0, 1.0));
     if (input->keyboard().IsDown(ugdk::input::Scancode::RIGHT))
-      mage.AddSpeed(MAGE_SPEED*Vector2D(1.0, 0.0));
+      mage->AddSpeed(MAGE_SPEED*Vector2D(1.0, 0.0));
     if (input->keyboard().IsDown(ugdk::input::Scancode::LEFT))
-      mage.AddSpeed(MAGE_SPEED*Vector2D(-1.0, 0.0));
-    mage.Move(dt);
+      mage->AddSpeed(MAGE_SPEED*Vector2D(-1.0, 0.0));
+    Body::MoveAll(dt);
 }
 
 } // unnamed namespace
@@ -66,8 +68,9 @@ int main(int argc, char* argv[]) {
     config.base_path = "assets/";
     assert(ugdk::system::Initialize(config));
     ugdk::action::Scene* ourscene = new ugdk::action::Scene;
+    mage = Body::Create(Vector2D(2.0, 3.0));
     tilemap = TileMap::Create("sample", data);
-    mage.Prepare();
+    mage->Prepare();
     ourscene->set_render_function(Rendering);
     ourscene->AddTask(Task(MoveMageTask));
     ourscene->event_handler().AddListener<ugdk::input::KeyPressedEvent>(

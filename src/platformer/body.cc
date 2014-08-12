@@ -21,6 +21,7 @@ using ugdk::graphic::opengl::ShaderUse;
 using ugdk::graphic::manager;
 using ugdk::graphic::opengl::VertexType;
 using std::shared_ptr;
+using std::unordered_set;
 
 namespace {
 
@@ -34,12 +35,16 @@ struct VertexXYUV {
 
 } // unnamed namespace
 
+unordered_set<Body::Ptr> Body::bodies;
+
 Body::Body(const ugdk::math::Vector2D& the_position)
         : position_(the_position), speed_(0.0, 0.0), body_primitive_(nullptr) {}
 
-void Body::Move(const double dt) {
-    position_ += speed_*dt;
-    speed_ *= 0.0;
+void Body::MoveAll(const double dt) {
+    for (auto& body : bodies) {
+      body->position_ += body->speed_*dt;
+      body->speed_ *= 0.0;
+    }
 }
 
 void Body::Prepare() {

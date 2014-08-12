@@ -3,6 +3,7 @@
 #define CIRCUITOFMANA_BODY_H_
 
 #include <memory>
+#include <unordered_set>
 #include <ugdk/math/vector2D.h>
 #include <ugdk/graphic/primitive.h>
 
@@ -10,21 +11,27 @@ namespace circuit {
 
 class Body final {
   public:
-    Body(const ugdk::math::Vector2D& the_position);
-    ugdk::math::Vector2D position() const { return position_; }
+    using Ptr = std::shared_ptr<Body>;
     void AddSpeed(const ugdk::math::Vector2D& diff) {
         speed_ += diff;
     }
     void AddSpeed(const double dx, const double dy) {
         AddSpeed(ugdk::math::Vector2D(dx, dy));
     }
-    void Move(const double dt);
     void Prepare();
     void Render(ugdk::graphic::Canvas& canvas) const;
+    static Ptr Create(const ugdk::math::Vector2D& the_position) {
+        Ptr new_body(new Body(the_position));
+        bodies.insert(new_body);
+        return new_body;
+    }
+    static void MoveAll(const double dt);
   private:
+    Body(const ugdk::math::Vector2D& the_position);
     std::unique_ptr<ugdk::graphic::Primitive> body_primitive_;
     ugdk::math::Vector2D                      position_;
     ugdk::math::Vector2D                      speed_;
+    static std::unordered_set<Ptr>            bodies;
 };
 
 } // namespace circuit
