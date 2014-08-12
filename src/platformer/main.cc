@@ -36,7 +36,7 @@ TileMap::Data data = {
   }
 };
 
-Body mage(Vector2D(2.0, 2.0));
+Body mage(Vector2D(2.0, 3.0));
 
 TileMap::Ptr tilemap;
 

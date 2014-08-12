@@ -46,10 +46,10 @@ void Body::Prepare() {
     shared_ptr<VertexData> data(new VertexData(4u, sizeof(VertexXYUV), false));
     body_primitive_.reset(new Primitive(manager()->white_texture(), data));
     VertexData::Mapper mapper(*data);
-    mapper.Get<VertexXYUV>(0)->set_xyuv(0.0f, 0.0f, 0.0f, 0.0f);
-    mapper.Get<VertexXYUV>(1)->set_xyuv(0.0f, 32.0f, 0.0f, 1.0f);
-    mapper.Get<VertexXYUV>(2)->set_xyuv(32.0f, 0.0f, 1.0f, 0.0f);
-    mapper.Get<VertexXYUV>(3)->set_xyuv(32.0f, 32.0f, 1.0f, 1.0f);
+    mapper.Get<VertexXYUV>(0)->set_xyuv(-16.0f, -32.0f, 0.0f, 0.0f);
+    mapper.Get<VertexXYUV>(1)->set_xyuv(-16.0f, 0.0f, 0.0f, 1.0f);
+    mapper.Get<VertexXYUV>(2)->set_xyuv(16.0f, -32.0f, 1.0f, 0.0f);
+    mapper.Get<VertexXYUV>(3)->set_xyuv(16.0f, 0.0f, 1.0f, 1.0f);
 }
 
 void Body::Render(Canvas& canvas) const {
