@@ -46,13 +46,25 @@ bool IsColliding(const Body::Space& space, const Vector2D& position) {
 unordered_set<Body::Ptr> Body::bodies;
 
 Body::Body(const ugdk::math::Vector2D& the_position)
-        : position_(the_position), speed_(0.0, 0.0), body_primitive_(nullptr) {}
+        : position_(the_position), speed_(0.0, 0.0), force_(0.0, 0.0),
+          body_primitive_(nullptr) {}
 
 void Body::MoveAll(const Space& space, const double dt) {
     for (auto& body : bodies) {
-      if (!IsColliding(space, body->position_ + body->speed_*dt))
-        body->position_ += body->speed_*dt;
-      body->speed_ *= 0.0;
+      body->ApplyForce(Vector2D(0.0, 20.0));
+      body->ApplyForce(Vector2D(-5.0*body->speed_.x, 0));
+      body->speed_ += body->force_*dt;
+      if (IsColliding(space, body->position_ + body->speed_*dt)) {
+          Vector2D horizontal = Vector2D(body->speed_.x, 0.0),
+                   vertical = Vector2D(0.0, body->speed_.y);
+          if (!IsColliding(space, body->position_ + horizontal*dt))
+              body->position_ += horizontal*dt;
+          else if (!IsColliding(space, body->position_ + vertical*dt))
+              body->position_ += vertical*dt;
+      } else {
+          body->position_ += body->speed_*dt;
+      }
+      body->force_ *= 0;
     }
 }
 

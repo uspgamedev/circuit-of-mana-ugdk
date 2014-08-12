@@ -23,7 +23,9 @@ using std::unique_ptr;
 
 namespace {
 
-const double MAGE_SPEED = 4.0;
+const double MAGE_SPEED = 10.0;
+const double FRAME_TIME = 1.0/60.0;
+double lag = 0.0;
 
 TileMap::Data data = {
     7, 7,
@@ -62,16 +64,16 @@ void Rendering(Canvas& canvas) {
 }
 
 void MoveMageTask(double dt) {
-    auto input = ugdk::input::manager();
-    if (input->keyboard().IsDown(ugdk::input::Scancode::UP))
-      mage->AddSpeed(MAGE_SPEED*Vector2D(0.0, -1.0));
-    if (input->keyboard().IsDown(ugdk::input::Scancode::DOWN))
-      mage->AddSpeed(MAGE_SPEED*Vector2D(0.0, 1.0));
-    if (input->keyboard().IsDown(ugdk::input::Scancode::RIGHT))
-      mage->AddSpeed(MAGE_SPEED*Vector2D(1.0, 0.0));
-    if (input->keyboard().IsDown(ugdk::input::Scancode::LEFT))
-      mage->AddSpeed(MAGE_SPEED*Vector2D(-1.0, 0.0));
-    Body::MoveAll(space, dt);
+    lag += dt;
+    while (lag >= FRAME_TIME) {
+        auto input = ugdk::input::manager();
+        if (input->keyboard().IsDown(ugdk::input::Scancode::RIGHT))
+          mage->ApplyForce(MAGE_SPEED*Vector2D(1.0, 0.0));
+        if (input->keyboard().IsDown(ugdk::input::Scancode::LEFT))
+          mage->ApplyForce(MAGE_SPEED*Vector2D(-1.0, 0.0));
+        Body::MoveAll(space, FRAME_TIME);
+        lag -= FRAME_TIME;
+    }
 }
 
 } // unnamed namespace
@@ -81,7 +83,7 @@ int main(int argc, char* argv[]) {
     config.base_path = "assets/";
     assert(ugdk::system::Initialize(config));
     ugdk::action::Scene* ourscene = new ugdk::action::Scene;
-    mage = Body::Create(Vector2D(2.0, 3.0));
+    mage = Body::Create(Vector2D(2.0, 2.0));
     tilemap = TileMap::Create("sample", data);
     mage->Prepare();
     ourscene->set_render_function(Rendering);
@@ -90,6 +92,8 @@ int main(int argc, char* argv[]) {
         [ourscene](const ugdk::input::KeyPressedEvent& ev) {
             if(ev.scancode == ugdk::input::Scancode::ESCAPE)
                 ourscene->Finish();
+            else if(ev.scancode == ugdk::input::Scancode::UP)
+                mage->ApplyForce(MAGE_SPEED*Vector2D(0.0, -100.0));
         });
     ugdk::system::PushScene(ourscene);
     ugdk::system::Run();

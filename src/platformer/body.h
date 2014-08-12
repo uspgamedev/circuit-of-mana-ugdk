@@ -20,6 +20,9 @@ class Body final {
     ugdk::math::Vector2D position() const {
         return position_;
     }
+    void ApplyForce(const ugdk::math::Vector2D& the_force) {
+        force_ += the_force;
+    }
     void AddSpeed(const ugdk::math::Vector2D& diff) {
         speed_ += diff;
     }
@@ -39,6 +42,7 @@ class Body final {
     std::unique_ptr<ugdk::graphic::Primitive> body_primitive_;
     ugdk::math::Vector2D                      position_;
     ugdk::math::Vector2D                      speed_;
+    ugdk::math::Vector2D                      force_;
     static std::unordered_set<Ptr>            bodies;
 };
 
