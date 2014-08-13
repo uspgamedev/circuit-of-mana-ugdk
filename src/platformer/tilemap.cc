@@ -93,9 +93,10 @@ TileMap::Ptr TileMap::Create(const string& name, const Data& tiles) {
         for (size_t i = 0; i < tiles.height; ++i)
             for (size_t j = 0; j < tiles.width; ++j) {
                 size_t offset = i*tiles.width + j;
+                size_t piece_index = tiles.indices[offset];
+                piece_index = static_cast<int>(piece_index)-1 < 0 ? 21 : piece_index-1;
                 float x = j*TILESIZE, y = i*TILESIZE;
-                TextureAtlas::BoundPiece piece = tilemap->tileset_->PieceAt(
-                        tiles.indices[offset]);
+                TextureAtlas::BoundPiece piece = tilemap->tileset_->PieceAt(piece_index);
                 mapper.Get<Tile>(offset)->set_vertices(x, y, piece);
             }
         for (size_t i = 0; i < tile_num; ++i)
