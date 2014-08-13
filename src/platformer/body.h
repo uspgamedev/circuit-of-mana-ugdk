@@ -9,6 +9,15 @@
 #include <ugdk/math/vector2D.h>
 #include <ugdk/graphic/primitive.h>
 
+namespace pyramidworks {
+namespace collision {
+class CollisionObject;
+} // namespace collision
+namespace geometry {
+class Rect;
+} // namespace geometry
+} // namespace pyramidworks
+
 namespace circuit {
 
 class Body final : public ugdk::action::Entity {
@@ -33,19 +42,16 @@ class Body final : public ugdk::action::Entity {
     void Prepare();
     void Update(double dt) override {}
     void Render(ugdk::graphic::Canvas& canvas) const;
-    static Ptr Create(const ugdk::math::Vector2D& the_position) {
-        Ptr new_body(new Body(the_position));
-        bodies.insert(new_body);
-        return new_body;
-    }
+    static Ptr Create(const ugdk::math::Vector2D& the_position);
     static void MoveAll(const Space& space, const double dt);
   private:
     Body(const ugdk::math::Vector2D& the_position);
-    std::unique_ptr<ugdk::graphic::Primitive> body_primitive_;
-    ugdk::math::Vector2D                      position_;
-    ugdk::math::Vector2D                      speed_;
-    ugdk::math::Vector2D                      force_;
-    static std::unordered_set<Ptr>            bodies;
+    std::unique_ptr<ugdk::graphic::Primitive>                 body_primitive_;
+    std::unique_ptr<pyramidworks::collision::CollisionObject> collision_;
+    ugdk::math::Vector2D                                      position_;
+    ugdk::math::Vector2D                                      speed_;
+    ugdk::math::Vector2D                                      force_;
+    static std::unordered_set<Ptr>                            bodies;
 };
 
 } // namespace circuit

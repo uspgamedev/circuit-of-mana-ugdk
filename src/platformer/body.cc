@@ -1,6 +1,8 @@
 
 #include "body.h"
 
+#include <pyramidworks/collision/collisionobject.h>
+#include <pyramidworks/geometry/rect.h>
 #include <ugdk/math/integer2D.h>
 #include <ugdk/graphic/canvas.h>
 #include <ugdk/graphic/geometry.h>
@@ -15,6 +17,8 @@
 
 namespace circuit {
 
+using pyramidworks::collision::CollisionObject;
+using pyramidworks::geometry::Rect;
 using ugdk::Color;
 using ugdk::math::Integer2D;
 using ugdk::math::Vector2D;
@@ -29,6 +33,7 @@ using ugdk::graphic::manager;
 using ugdk::graphic::opengl::VertexType;
 using ugdk::graphic::VisualEffect;
 using std::shared_ptr;
+using std::unique_ptr;
 using std::unordered_set;
 
 namespace {
@@ -54,8 +59,14 @@ bool IsColliding(const Body::Space& space, const Vector2D& position) {
 unordered_set<Body::Ptr> Body::bodies;
 
 Body::Body(const ugdk::math::Vector2D& the_position)
-        : position_(the_position), speed_(0.0, 0.0), force_(0.0, 0.0),
-          body_primitive_(nullptr) {}
+        : body_primitive_(nullptr), collision_(nullptr),
+          position_(the_position), speed_(0.0, 0.0), force_(0.0, 0.0) {}
+
+Body::Ptr Body::Create(const ugdk::math::Vector2D& the_position) {
+    Ptr new_body(new Body(the_position));
+    bodies.insert(new_body);
+    return new_body;
+}
 
 void Body::MoveAll(const Space& space, const double dt) {
     for (auto& body : bodies) {
@@ -76,13 +87,19 @@ void Body::MoveAll(const Space& space, const double dt) {
 }
 
 void Body::Prepare() {
-    shared_ptr<VertexData> data(new VertexData(4u, sizeof(VertexXYUV), false));
-    body_primitive_.reset(new Primitive(manager()->white_texture(), data));
-    VertexData::Mapper mapper(*data);
-    mapper.Get<VertexXYUV>(0)->set_xyuv(-16.0f, -32.0f, 0.0f, 0.0f);
-    mapper.Get<VertexXYUV>(1)->set_xyuv(-16.0f, 0.0f, 0.0f, 1.0f);
-    mapper.Get<VertexXYUV>(2)->set_xyuv(16.0f, -32.0f, 1.0f, 0.0f);
-    mapper.Get<VertexXYUV>(3)->set_xyuv(16.0f, 0.0f, 1.0f, 1.0f);
+    /* Prepating renderization */ {
+        shared_ptr<VertexData> data(new VertexData(4u, sizeof(VertexXYUV), false));
+        body_primitive_.reset(new Primitive(manager()->white_texture(), data));
+        VertexData::Mapper mapper(*data);
+        mapper.Get<VertexXYUV>(0)->set_xyuv(-16.0f, -32.0f, 0.0f, 0.0f);
+        mapper.Get<VertexXYUV>(1)->set_xyuv(-16.0f, 0.0f, 0.0f, 1.0f);
+        mapper.Get<VertexXYUV>(2)->set_xyuv(16.0f, -32.0f, 1.0f, 0.0f);
+        mapper.Get<VertexXYUV>(3)->set_xyuv(16.0f, 0.0f, 1.0f, 1.0f);
+    }
+    /* Preparing collision */ {
+        collision_ = unique_ptr<CollisionObject>(
+                new CollisionObject(this, "body", new Rect(32.0, 32.0)));
+    }
 }
 
 void Body::Render(Canvas& canvas) const {
