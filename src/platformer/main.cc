@@ -6,6 +6,7 @@
 #include <functional>
 #include <memory>
 #include <random>
+#include <string>
 #include <vector>
 #include <libjson.h>
 #include <ugdk/action/scene.h>
@@ -115,6 +116,7 @@ void MoveMageTask(double dt) {
 
 void GenerateBodies() {
     mage = Body::Create(Vector2D(2.0, 2.0));
+    mage->set_name("mage");
     mage->Prepare();
     collision_manager->AddActiveObject(mage->collision());
     mage->collision()->StartColliding(collision_manager.get());
@@ -125,6 +127,7 @@ void GenerateBodies() {
         stuff[i]->Prepare();
         collision_manager->AddActiveObject(stuff[i]->collision());
         stuff[i]->collision()->StartColliding(collision_manager.get());
+        stuff[i]->set_name("stuff-" + std::to_string(i));
     }
 }
 

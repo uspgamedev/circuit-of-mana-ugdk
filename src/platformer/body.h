@@ -27,6 +27,12 @@ class Body final : public ugdk::action::Entity {
         size_t              width, height;
         std::vector<size_t> tiles;
     };
+    std::string name() const {
+        return name_;
+    }
+    void set_name(const std::string& the_name) {
+        name_ = the_name;
+    }
     ugdk::math::Vector2D position() const {
         return position_;
     }
@@ -49,6 +55,7 @@ class Body final : public ugdk::action::Entity {
     static void MoveAll(const Space& space, const double dt);
   private:
     Body(const ugdk::math::Vector2D& the_position);
+    std::string                                               name_;
     std::unique_ptr<ugdk::graphic::Primitive>                 body_primitive_;
     std::unique_ptr<pyramidworks::collision::CollisionObject> collision_;
     ugdk::math::Vector2D                                      position_;

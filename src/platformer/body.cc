@@ -84,6 +84,7 @@ void Body::MoveAll(const Space& space, const double dt) {
       }
       body->position_ += body->speed_*dt;
       body->force_ *= 0;
+      body->collision_->MoveTo(body->position_ + Vector2D(0.0, -0.5));
     }
 }
 
@@ -99,10 +100,12 @@ void Body::Prepare() {
     }
     /* Preparing collision */ {
         collision_ = unique_ptr<CollisionObject>(
-                new CollisionObject(this, "body", new Rect(32.0, 32.0)));
+                new CollisionObject(this, "body", new Rect(1.0, 1.0)));
         collision_->AddCollisionLogic("body", [this] (const CollisionObject* other) {
-            std::cout << "COLLISION" << std::endl;
+            Body* target = dynamic_cast<Body*>(other->owner());
+            std::cout << "COLLISION " << this->name() << ":" << target->name() << std::endl;
         });
+        collision_->MoveTo(position_ + Vector2D(0.0, -0.5));
     }
 }
 
