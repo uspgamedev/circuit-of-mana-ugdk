@@ -65,7 +65,7 @@ pair<Vector2D, Vector2D> DecomposeInDir(Vector2D vec, Vector2D dir) {
 
 pair<double, double> GetSpeedsAfterCollision(double v1, double v2) {
     double m1 = 1.0, m2 = 1.0;
-    double e = 0.2;
+    double e = 1.0;
     return make_pair(
         ( m2*e*(v2-v1) + (m1*v1) + (m2*v2) ) / (m1 + m2),
         ( m1*e*(v1-v2) + (m1*v1) + (m2*v2) ) / (m1 + m2)
@@ -78,12 +78,19 @@ unordered_set<Body::Ptr> Body::bodies;
 
 Body::Body(const ugdk::math::Vector2D& the_position)
         : body_primitive_(nullptr), collision_(nullptr),
-          position_(the_position), speed_(0.0, 0.0), force_(0.0, 0.0) {}
+          position_(the_position), last_position_(the_position),
+          speed_(0.0, 0.0), force_(0.0, 0.0) {}
 
 Body::Ptr Body::Create(const ugdk::math::Vector2D& the_position) {
     Ptr new_body(new Body(the_position));
     bodies.insert(new_body);
     return new_body;
+}
+
+void Body::set_position(const Vector2D& the_position) {
+    last_position_ = position_;
+    position_ = the_position;
+    collision_->MoveTo(position_ + Vector2D(0.0, -0.5));
 }
 
 void Body::MoveAll(const Space& space, const double dt) {
@@ -99,9 +106,8 @@ void Body::MoveAll(const Space& space, const double dt) {
           if (IsColliding(space, body->position_ + vertical*dt))
               body->speed_.y *= 0.0;
       }
-      body->position_ += body->speed_*dt;
+      body->set_position(body->position_ + body->speed_*dt);
       body->force_ *= 0;
-      body->collision_->MoveTo(body->position_ + Vector2D(0.0, -0.5));
       body->collided_.clear();
     }
 }
@@ -127,9 +133,13 @@ void Body::Prepare() {
             Vector2D collision_dir = (target->position_ - this->position_).Normalize();
             auto this_speed = DecomposeInDir(this->speed_, collision_dir);
             auto target_speed = DecomposeInDir(target->speed_, collision_dir);
+            if ((target_speed.first - this_speed.first)*collision_dir >= 0.0)
+                return;
             auto result = GetSpeedsAfterCollision(this_speed.first.length(), target_speed.first.length());
             this->speed_ = target_speed.first.Normalize()*result.first + this_speed.second;
             target->speed_ = this_speed.first.Normalize()*result.second + target_speed.second;
+            this->set_position(this->last_position_);
+            target->set_position(target->last_position_);
         });
         collision_->MoveTo(position_ + Vector2D(0.0, -0.5));
     }

@@ -36,6 +36,7 @@ class Body final : public ugdk::action::Entity {
     ugdk::math::Vector2D position() const {
         return position_;
     }
+    void set_position(const ugdk::math::Vector2D& the_position);
     pyramidworks::collision::CollisionObject* collision() const {
         return collision_.get();
     }
@@ -58,7 +59,7 @@ class Body final : public ugdk::action::Entity {
     std::string                                               name_;
     std::unique_ptr<ugdk::graphic::Primitive>                 body_primitive_;
     std::unique_ptr<pyramidworks::collision::CollisionObject> collision_;
-    ugdk::math::Vector2D                                      position_;
+    ugdk::math::Vector2D                                      position_, last_position_;
     ugdk::math::Vector2D                                      speed_;
     ugdk::math::Vector2D                                      force_;
     std::unordered_set<Body*>                                 collided_;
