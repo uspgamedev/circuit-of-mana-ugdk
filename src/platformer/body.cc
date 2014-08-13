@@ -69,10 +69,8 @@ void Body::MoveAll(const Space& space, const double dt) {
               body->speed_.x *= 0.0;
           if (IsColliding(space, body->position_ + vertical*dt))
               body->speed_.y *= 0.0;
-          body->position_ += body->speed_*dt;
-      } else {
-          body->position_ += body->speed_*dt;
       }
+      body->position_ += body->speed_*dt;
       body->force_ *= 0;
     }
 }

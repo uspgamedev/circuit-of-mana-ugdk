@@ -5,12 +5,13 @@
 #include <memory>
 #include <unordered_set>
 #include <vector>
+#include <ugdk/action/entity.h>
 #include <ugdk/math/vector2D.h>
 #include <ugdk/graphic/primitive.h>
 
 namespace circuit {
 
-class Body final {
+class Body final : public ugdk::action::Entity {
   public:
     using Ptr = std::shared_ptr<Body>;
     struct Space {
@@ -30,6 +31,7 @@ class Body final {
         AddSpeed(ugdk::math::Vector2D(dx, dy));
     }
     void Prepare();
+    void Update(double dt) override {}
     void Render(ugdk::graphic::Canvas& canvas) const;
     static Ptr Create(const ugdk::math::Vector2D& the_position) {
         Ptr new_body(new Body(the_position));
