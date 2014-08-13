@@ -101,14 +101,17 @@ void Rendering(Canvas& canvas) {
         body->Render(canvas);
 }
 
+void CheckInputTask(double /*unused*/) {
+    auto input = ugdk::input::manager();
+    if (input->keyboard().IsDown(ugdk::input::Scancode::RIGHT))
+      mage->ApplyForce(MAGE_SPEED*Vector2D(1.0, 0.0));
+    if (input->keyboard().IsDown(ugdk::input::Scancode::LEFT))
+      mage->ApplyForce(MAGE_SPEED*Vector2D(-1.0, 0.0));
+}
+
 void MoveMageTask(double dt) {
     lag += dt;
     while (lag >= FRAME_TIME) {
-        auto input = ugdk::input::manager();
-        if (input->keyboard().IsDown(ugdk::input::Scancode::RIGHT))
-          mage->ApplyForce(MAGE_SPEED*Vector2D(1.0, 0.0));
-        if (input->keyboard().IsDown(ugdk::input::Scancode::LEFT))
-          mage->ApplyForce(MAGE_SPEED*Vector2D(-1.0, 0.0));
         Body::MoveAll(space, FRAME_TIME);
         lag -= FRAME_TIME;
     }
@@ -145,8 +148,9 @@ int main(int argc, char* argv[]) {
     GenerateBodies();
     tilemap = TileMap::Create("sample", data);
     ourscene->set_render_function(Rendering);
-    ourscene->AddTask(Task(MoveMageTask));
-    ourscene->AddTask(collision_manager->GenerateHandleCollisionTask(0.3));
+    ourscene->AddTask(Task(CheckInputTask, 0.1));
+    ourscene->AddTask(collision_manager->GenerateHandleCollisionTask(0.2));
+    ourscene->AddTask(Task(MoveMageTask, 0.3));
     ourscene->event_handler().AddListener<ugdk::input::KeyPressedEvent>(
         [ourscene](const ugdk::input::KeyPressedEvent& ev) {
             if(ev.scancode == ugdk::input::Scancode::ESCAPE)

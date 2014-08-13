@@ -61,6 +61,7 @@ class Body final : public ugdk::action::Entity {
     ugdk::math::Vector2D                                      position_;
     ugdk::math::Vector2D                                      speed_;
     ugdk::math::Vector2D                                      force_;
+    std::unordered_set<Body*>                                 collided_;
     static std::unordered_set<Ptr>                            bodies;
 };
 

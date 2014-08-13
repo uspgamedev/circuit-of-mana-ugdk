@@ -2,6 +2,7 @@
 #include "body.h"
 
 #include <iostream>
+#include <utility>
 #include <pyramidworks/collision/collisionobject.h>
 #include <pyramidworks/geometry/rect.h>
 #include <ugdk/math/integer2D.h>
@@ -33,6 +34,8 @@ using ugdk::graphic::opengl::ShaderUse;
 using ugdk::graphic::manager;
 using ugdk::graphic::opengl::VertexType;
 using ugdk::graphic::VisualEffect;
+using std::pair;
+using std::make_pair;
 using std::shared_ptr;
 using std::unique_ptr;
 using std::unordered_set;
@@ -53,6 +56,20 @@ bool IsColliding(const Body::Space& space, const Vector2D& position) {
         || tile_position.x >= space.width || tile_position.y >= space.height)
         return true;
     return space.tiles[tile_position.y*space.width + tile_position.x] > 0;
+}
+
+pair<Vector2D, Vector2D> DecomposeInDir(Vector2D vec, Vector2D dir) {
+    Vector2D perpendicular = Vector2D(-dir.y, dir.x);
+    return make_pair(dir * (dir * vec), perpendicular * (perpendicular * vec));
+}
+
+pair<double, double> GetSpeedsAfterCollision(double v1, double v2) {
+    double m1 = 1.0, m2 = 1.0;
+    double e = 0.2;
+    return make_pair(
+        ( m2*e*(v2-v1) + (m1*v1) + (m2*v2) ) / (m1 + m2),
+        ( m1*e*(v1-v2) + (m1*v1) + (m2*v2) ) / (m1 + m2)
+    );
 }
 
 } // unnamed namespace
@@ -85,6 +102,7 @@ void Body::MoveAll(const Space& space, const double dt) {
       body->position_ += body->speed_*dt;
       body->force_ *= 0;
       body->collision_->MoveTo(body->position_ + Vector2D(0.0, -0.5));
+      body->collided_.clear();
     }
 }
 
@@ -103,7 +121,15 @@ void Body::Prepare() {
                 new CollisionObject(this, "body", new Rect(1.0, 1.0)));
         collision_->AddCollisionLogic("body", [this] (const CollisionObject* other) {
             Body* target = dynamic_cast<Body*>(other->owner());
-            std::cout << "COLLISION " << this->name() << ":" << target->name() << std::endl;
+            if (this->collided_.count(target) > 0)
+                return;
+            target->collided_.insert(this);
+            Vector2D collision_dir = (target->position_ - this->position_).Normalize();
+            auto this_speed = DecomposeInDir(this->speed_, collision_dir);
+            auto target_speed = DecomposeInDir(target->speed_, collision_dir);
+            auto result = GetSpeedsAfterCollision(this_speed.first.length(), target_speed.first.length());
+            this->speed_ = target_speed.first.Normalize()*result.first + this_speed.second;
+            target->speed_ = this_speed.first.Normalize()*result.second + target_speed.second;
         });
         collision_->MoveTo(position_ + Vector2D(0.0, -0.5));
     }
