@@ -14,14 +14,18 @@
 #include <ugdk/input/events.h>
 #include <ugdk/input/module.h>
 #include <ugdk/structure/types.h>
+#include <ugdk/structure/box.h>
 #include <ugdk/system/engine.h>
 #include <ugdk/system/task.h>
+#include <pyramidworks/collision/collisionmanager.h>
 
 using circuit::TileMap;
 using circuit::Body;
+using pyramidworks::collision::CollisionManager;
 using ugdk::Color;
 using ugdk::graphic::Canvas;
 using ugdk::math::Vector2D;
+using ugdk::structure::Box;
 using ugdk::system::Configuration;
 using ugdk::system::Task;
 using std::unique_ptr;
@@ -82,10 +86,10 @@ Body::Space space = {
     }
 };
 
-Body::Ptr mage;
-vector<Body::Ptr> stuff(BODY_COUNT, nullptr);
-
-TileMap::Ptr tilemap;
+TileMap::Ptr                  tilemap;
+Body::Ptr                     mage;
+vector<Body::Ptr>             stuff(BODY_COUNT, nullptr);
+unique_ptr<CollisionManager>  collision_manager;
 
 void Rendering(Canvas& canvas) {
     canvas.Clear(Color(.4, .2, .2));
@@ -124,6 +128,8 @@ int main(int argc, char* argv[]) {
     config.base_path = "assets/";
     assert(ugdk::system::Initialize(config));
     ugdk::system::text_manager()->AddFont("default", "fonts/Filmcrypob.ttf", 24.0);
+    collision_manager = unique_ptr<CollisionManager>(new CollisionManager(
+              Box<2>({-1.0, -1.0},{25.0, 19.0})));
     ugdk::action::Scene* ourscene = new ugdk::action::Scene;
     mage = Body::Create(Vector2D(2.0, 2.0));
     GenerateBodies();
