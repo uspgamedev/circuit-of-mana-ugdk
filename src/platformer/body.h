@@ -14,7 +14,7 @@ class Body final {
   public:
     using Ptr = std::shared_ptr<Body>;
     struct Space {
-        size_t              width;
+        size_t              width, height;
         std::vector<size_t> tiles;
     };
     ugdk::math::Vector2D position() const {

@@ -7,6 +7,7 @@
 #include <libjson.h>
 #include <ugdk/action/scene.h>
 #include <ugdk/graphic/canvas.h>
+#include <ugdk/graphic/text/textmanager.h>
 #include <ugdk/input/events.h>
 #include <ugdk/input/module.h>
 #include <ugdk/structure/types.h>
@@ -24,7 +25,7 @@ using std::unique_ptr;
 
 namespace {
 
-const double MAGE_SPEED = 10.0;
+const double MAGE_SPEED = 15.0;
 const double FRAME_TIME = 1.0/60.0;
 double lag = 0.0;
 
@@ -53,7 +54,7 @@ TileMap::Data data = {
 };
 
 Body::Space space = {
-    24,
+    24, 18,
     {
         0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
         0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
@@ -105,6 +106,7 @@ int main(int argc, char* argv[]) {
     Configuration config;
     config.base_path = "assets/";
     assert(ugdk::system::Initialize(config));
+    ugdk::system::text_manager()->AddFont("default", "fonts/Filmcrypob.ttf", 24.0);
     ugdk::action::Scene* ourscene = new ugdk::action::Scene;
     mage = Body::Create(Vector2D(2.0, 2.0));
     tilemap = TileMap::Create("sample", data);

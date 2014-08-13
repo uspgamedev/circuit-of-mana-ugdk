@@ -8,10 +8,14 @@
 #include <ugdk/graphic/module.h>
 #include <ugdk/graphic/textureatlas.h>
 #include <ugdk/graphic/vertexdata.h>
+#include <ugdk/graphic/visualeffect.h>
+#include <ugdk/graphic/drawable/functions.h>
 #include <ugdk/graphic/opengl/shaderuse.h>
+#include <ugdk/structure/types.h>
 
 namespace circuit {
 
+using ugdk::Color;
 using ugdk::math::Integer2D;
 using ugdk::math::Vector2D;
 using ugdk::graphic::Canvas;
@@ -23,6 +27,7 @@ using ugdk::graphic::VertexData;
 using ugdk::graphic::opengl::ShaderUse;
 using ugdk::graphic::manager;
 using ugdk::graphic::opengl::VertexType;
+using ugdk::graphic::VisualEffect;
 using std::shared_ptr;
 using std::unordered_set;
 
@@ -38,6 +43,9 @@ struct VertexXYUV {
 
 bool IsColliding(const Body::Space& space, const Vector2D& position) {
     Integer2D tile_position(position);
+    if (tile_position.x < 0 || tile_position.y < 0
+        || tile_position.x >= space.width || tile_position.y >= space.height)
+        return true;
     return space.tiles[tile_position.y*space.width + tile_position.x] > 0;
 }
 
@@ -57,16 +65,11 @@ void Body::MoveAll(const Space& space, const double dt) {
       if (IsColliding(space, body->position_ + body->speed_*dt)) {
           Vector2D horizontal = Vector2D(body->speed_.x, 0.0),
                    vertical = Vector2D(0.0, body->speed_.y);
-          if (IsColliding(space, body->position_ + horizontal*dt)) {
-              body->position_ += vertical*dt;
+          if (IsColliding(space, body->position_ + horizontal*dt))
               body->speed_.x *= 0.0;
-          }
-          else if (IsColliding(space, body->position_ + vertical*dt)) {
-              body->position_ += horizontal*dt;
+          if (IsColliding(space, body->position_ + vertical*dt))
               body->speed_.y *= 0.0;
-          } else {
-              body->speed_ *= 0.0;
-          }
+          body->position_ += body->speed_*dt;
       } else {
           body->position_ += body->speed_*dt;
       }
@@ -85,10 +88,17 @@ void Body::Prepare() {
 }
 
 void Body::Render(Canvas& canvas) const {
-    ShaderUse shader_use(manager()->shaders().current_shader());
     shared_ptr<const VertexData> data = body_primitive_->vertexdata();
 
+    canvas.PushAndCompose(Geometry(Vector2D(Integer2D(position_) * 32.0), Vector2D(32.0, 32.0)));
+    canvas.PushAndCompose(VisualEffect(Color(.4, .4, .8, 1.0)));
+    ugdk::graphic::DrawSquare(canvas.current_geometry(), canvas.current_visualeffect(), manager()->white_texture());
+    canvas.PopVisualEffect();
+    canvas.PopGeometry();
+
     canvas.PushAndCompose(Geometry(position_ * 32.0));
+
+    ShaderUse shader_use(manager()->shaders().current_shader());
 
     shader_use.SendGeometry(canvas.current_geometry());
     shader_use.SendEffect(canvas.current_visualeffect());
