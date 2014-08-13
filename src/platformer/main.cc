@@ -136,7 +136,7 @@ int main(int argc, char* argv[]) {
             if(ev.scancode == ugdk::input::Scancode::ESCAPE)
                 ourscene->Finish();
             else if(ev.scancode == ugdk::input::Scancode::UP)
-                mage->ApplyForce(Vector2D(0.0, -400.0));
+                mage->ApplyForce(Vector2D(0.0, -600.0));
         });
     ugdk::system::PushScene(ourscene);
     ugdk::system::Run();
