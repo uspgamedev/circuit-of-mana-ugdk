@@ -1,6 +1,7 @@
 
 #include "body.h"
 
+#include <iostream>
 #include <pyramidworks/collision/collisionobject.h>
 #include <pyramidworks/geometry/rect.h>
 #include <ugdk/math/integer2D.h>
@@ -99,6 +100,9 @@ void Body::Prepare() {
     /* Preparing collision */ {
         collision_ = unique_ptr<CollisionObject>(
                 new CollisionObject(this, "body", new Rect(32.0, 32.0)));
+        collision_->AddCollisionLogic("body", [this] (const CollisionObject* other) {
+            std::cout << "COLLISION" << std::endl;
+        });
     }
 }
 

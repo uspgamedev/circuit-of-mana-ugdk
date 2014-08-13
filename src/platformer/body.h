@@ -30,6 +30,9 @@ class Body final : public ugdk::action::Entity {
     ugdk::math::Vector2D position() const {
         return position_;
     }
+    pyramidworks::collision::CollisionObject* collision() const {
+        return collision_.get();
+    }
     void ApplyForce(const ugdk::math::Vector2D& the_force) {
         force_ += the_force;
     }

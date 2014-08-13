@@ -18,6 +18,7 @@
 #include <ugdk/system/engine.h>
 #include <ugdk/system/task.h>
 #include <pyramidworks/collision/collisionmanager.h>
+#include <pyramidworks/collision/collisionobject.h>
 
 using circuit::TileMap;
 using circuit::Body;
@@ -113,11 +114,17 @@ void MoveMageTask(double dt) {
 }
 
 void GenerateBodies() {
+    mage = Body::Create(Vector2D(2.0, 2.0));
+    mage->Prepare();
+    collision_manager->AddActiveObject(mage->collision());
+    mage->collision()->StartColliding(collision_manager.get());
     std::default_random_engine generator(time(nullptr));
     std::uniform_real_distribution<double> distribution(3.0,20.0);
     for (size_t i = 0; i < BODY_COUNT; ++i) {
         stuff[i] = Body::Create(Vector2D(distribution(generator), 2.0));
         stuff[i]->Prepare();
+        collision_manager->AddActiveObject(stuff[i]->collision());
+        stuff[i]->collision()->StartColliding(collision_manager.get());
     }
 }
 
@@ -130,13 +137,13 @@ int main(int argc, char* argv[]) {
     ugdk::system::text_manager()->AddFont("default", "fonts/Filmcrypob.ttf", 24.0);
     collision_manager = unique_ptr<CollisionManager>(new CollisionManager(
               Box<2>({-1.0, -1.0},{25.0, 19.0})));
+    collision_manager->Find("body");
     ugdk::action::Scene* ourscene = new ugdk::action::Scene;
-    mage = Body::Create(Vector2D(2.0, 2.0));
     GenerateBodies();
     tilemap = TileMap::Create("sample", data);
-    mage->Prepare();
     ourscene->set_render_function(Rendering);
     ourscene->AddTask(Task(MoveMageTask));
+    ourscene->AddTask(collision_manager->GenerateHandleCollisionTask(0.3));
     ourscene->event_handler().AddListener<ugdk::input::KeyPressedEvent>(
         [ourscene](const ugdk::input::KeyPressedEvent& ev) {
             if(ev.scancode == ugdk::input::Scancode::ESCAPE)
@@ -147,6 +154,8 @@ int main(int argc, char* argv[]) {
     ugdk::system::PushScene(ourscene);
     ugdk::system::Run();
     ugdk::system::Release();
+    stuff.clear();
+    mage = Body::Ptr(nullptr);
     return 0;
 }
 
