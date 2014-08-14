@@ -4,7 +4,7 @@ local NAME, W, H, N, M = ...
 W = tonumber(W)
 H = tonumber(H)
 M = tonumber(M)
-  N = tonumber(N)
+N = tonumber(N)
 
 local json = [[
 {
