@@ -1,6 +1,7 @@
 
 #include "tilemap.h"
 #include "body.h"
+#include "view/stagerenderer.h"
 
 #include <ctime>
 #include <functional>
@@ -88,14 +89,13 @@ Body::Space space = {
     }
 };
 
-TileMap::Ptr                  tilemap;
+circuit::view::StageRenderer  renderer(nullptr);
 Body::Ptr                     mage;
 vector<Body::Ptr>             stuff(BODY_COUNT, nullptr);
 unique_ptr<CollisionManager>  collision_manager;
 
 void Rendering(Canvas& canvas) {
-    canvas.Clear(Color(.4, .2, .2));
-    tilemap->Render(canvas);
+    renderer.Render(canvas);
     mage->Render(canvas);
     for (auto& body : stuff)
         body->Render(canvas);
@@ -146,7 +146,7 @@ int main(int argc, char* argv[]) {
     collision_manager->Find("body");
     ugdk::action::Scene* ourscene = new ugdk::action::Scene;
     GenerateBodies();
-    tilemap = TileMap::Create("sample", data);
+    renderer = circuit::view::StageRenderer(TileMap::Create("sample", data));
     ourscene->set_render_function(Rendering);
     ourscene->AddTask(Task(CheckInputTask, 0.1));
     ourscene->AddTask(collision_manager->GenerateHandleCollisionTask(0.2));
