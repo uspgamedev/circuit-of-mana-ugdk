@@ -95,8 +95,7 @@ vector<Body::Ptr>             stuff(BODY_COUNT, nullptr);
 unique_ptr<CollisionManager>  collision_manager;
 
 void Rendering(Canvas& canvas) {
-    renderer->Render(canvas, stuff);
-    mage->Render(canvas);
+    renderer->Render(canvas, stuff, mage);
 }
 
 void CheckInputTask(double /*unused*/) {

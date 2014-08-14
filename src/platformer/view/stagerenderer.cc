@@ -20,10 +20,12 @@ namespace view {
 StageRenderer::StageRenderer(unique_ptr<TileMap>&& the_tilemap)
     : tilemap_(std::move(the_tilemap)) {}
 
-void StageRenderer::Render(Canvas& canvas, const vector<Body::Ptr>& bodies) {
+void StageRenderer::Render(Canvas& canvas, const vector<Body::Ptr>& bodies,
+                           const Body::Ptr& mage) {
     canvas.Clear(Color(.4, .2, .2));
     tilemap_->Render(canvas);
     blank_.Render(canvas, bodies);
+    sprite_.Render(canvas, vector<Body::Ptr>(1u, mage));
 }
 
 } // namespace view

@@ -10,6 +10,8 @@ add_ugdk_executable (
   view/blank.cc
   view/stagerenderer.h
   view/stagerenderer.cc
+  view/sprite.h
+  view/sprite.cc
   view/tilemap.cc
   view/tilemap.h
 )
