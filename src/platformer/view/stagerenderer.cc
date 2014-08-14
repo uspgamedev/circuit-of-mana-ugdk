@@ -2,6 +2,7 @@
 #include "view/stagerenderer.h"
 
 #include <ugdk/graphic/canvas.h>
+#include <ugdk/graphic/primitive.h>
 #include <ugdk/structure/types.h>
 #include "view/tilemap.h"
 
