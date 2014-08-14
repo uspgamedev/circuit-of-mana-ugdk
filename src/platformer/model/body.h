@@ -1,24 +1,17 @@
 
-#ifndef CIRCUITOFMANA_BODY_H_
-#define CIRCUITOFMANA_BODY_H_
+#ifndef CIRCUITOFMANA_MODEL_BODY_H_
+#define CIRCUITOFMANA_MODEL_BODY_H_
 
 #include <memory>
 #include <unordered_set>
 #include <vector>
 #include <ugdk/action/entity.h>
 #include <ugdk/math/vector2D.h>
-#include <ugdk/graphic/primitive.h>
-
-namespace pyramidworks {
-namespace collision {
-class CollisionObject;
-} // namespace collision
-namespace geometry {
-class Rect;
-} // namespace geometry
-} // namespace pyramidworks
+#include <pyramidworks/collision.h>
+#include <pyramidworks/geometry.h>
 
 namespace circuit {
+namespace model {
 
 class Body final : public ugdk::action::Entity {
   public:
@@ -49,15 +42,12 @@ class Body final : public ugdk::action::Entity {
     void AddSpeed(const double dx, const double dy) {
         AddSpeed(ugdk::math::Vector2D(dx, dy));
     }
-    void Prepare();
     void Update(double dt) override {}
-    void Render(ugdk::graphic::Canvas& canvas) const;
     static Ptr Create(const ugdk::math::Vector2D& the_position);
     static void MoveAll(const Space& space, const double dt);
   private:
     Body(const ugdk::math::Vector2D& the_position);
     std::string                                               name_;
-    std::unique_ptr<ugdk::graphic::Primitive>                 body_primitive_;
     std::unique_ptr<pyramidworks::collision::CollisionObject> collision_;
     ugdk::math::Vector2D                                      position_, last_position_;
     ugdk::math::Vector2D                                      speed_;
@@ -66,7 +56,8 @@ class Body final : public ugdk::action::Entity {
     static std::unordered_set<Ptr>                            bodies;
 };
 
+} // namespace model
 } // namespace circuit
 
-#endif // CIRCUITOFMANA_BODY_H_
+#endif // CIRCUITOFMANA_MODEL_BODY_H_
 

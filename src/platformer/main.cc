@@ -1,6 +1,7 @@
 
-#include "tilemap.h"
-#include "body.h"
+#include "model/body.h"
+#include "view/tilemap.h"
+#include "view/stagerenderer.h"
 
 #include <ctime>
 #include <functional>
@@ -11,6 +12,7 @@
 #include <libjson.h>
 #include <ugdk/action/scene.h>
 #include <ugdk/graphic/canvas.h>
+#include <ugdk/graphic/primitive.h>
 #include <ugdk/graphic/text/textmanager.h>
 #include <ugdk/input/events.h>
 #include <ugdk/input/module.h>
@@ -21,8 +23,8 @@
 #include <pyramidworks/collision/collisionmanager.h>
 #include <pyramidworks/collision/collisionobject.h>
 
-using circuit::TileMap;
-using circuit::Body;
+using circuit::view::TileMap;
+using circuit::model::Body;
 using pyramidworks::collision::CollisionManager;
 using ugdk::Color;
 using ugdk::graphic::Canvas;
@@ -88,17 +90,13 @@ Body::Space space = {
     }
 };
 
-TileMap::Ptr                  tilemap;
+unique_ptr<circuit::view::StageRenderer> renderer;
 Body::Ptr                     mage;
 vector<Body::Ptr>             stuff(BODY_COUNT, nullptr);
 unique_ptr<CollisionManager>  collision_manager;
 
 void Rendering(Canvas& canvas) {
-    canvas.Clear(Color(.4, .2, .2));
-    tilemap->Render(canvas);
-    mage->Render(canvas);
-    for (auto& body : stuff)
-        body->Render(canvas);
+    renderer->Render(canvas, stuff, mage);
 }
 
 void CheckInputTask(double /*unused*/) {
@@ -120,14 +118,12 @@ void MoveMageTask(double dt) {
 void GenerateBodies() {
     mage = Body::Create(Vector2D(2.0, 2.0));
     mage->set_name("mage");
-    mage->Prepare();
     collision_manager->AddActiveObject(mage->collision());
     mage->collision()->StartColliding(collision_manager.get());
     std::default_random_engine generator(time(nullptr));
     std::uniform_real_distribution<double> distribution(3.0,20.0);
     for (size_t i = 0; i < BODY_COUNT; ++i) {
         stuff[i] = Body::Create(Vector2D(distribution(generator), 2.0));
-        stuff[i]->Prepare();
         collision_manager->AddActiveObject(stuff[i]->collision());
         stuff[i]->collision()->StartColliding(collision_manager.get());
         stuff[i]->set_name("stuff-" + std::to_string(i));
@@ -146,7 +142,7 @@ int main(int argc, char* argv[]) {
     collision_manager->Find("body");
     ugdk::action::Scene* ourscene = new ugdk::action::Scene;
     GenerateBodies();
-    tilemap = TileMap::Create("sample", data);
+    renderer.reset(new circuit::view::StageRenderer(TileMap::Create("sample", data)));
     ourscene->set_render_function(Rendering);
     ourscene->AddTask(Task(CheckInputTask, 0.1));
     ourscene->AddTask(collision_manager->GenerateHandleCollisionTask(0.2));
