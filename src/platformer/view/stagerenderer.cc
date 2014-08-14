@@ -3,7 +3,7 @@
 
 #include <ugdk/graphic/canvas.h>
 #include <ugdk/structure/types.h>
-#include "tilemap.h"
+#include "view/tilemap.h"
 
 namespace {
 

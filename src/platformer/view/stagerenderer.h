@@ -6,10 +6,9 @@
 #include <ugdk/graphic.h>
 
 namespace circuit {
+namespace view {
 
 class TileMap;
-
-namespace view {
 
 class StageRenderer final {
   public:

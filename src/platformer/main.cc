@@ -1,6 +1,6 @@
 
-#include "tilemap.h"
 #include "body.h"
+#include "view/tilemap.h"
 #include "view/stagerenderer.h"
 
 #include <ctime>
@@ -22,7 +22,7 @@
 #include <pyramidworks/collision/collisionmanager.h>
 #include <pyramidworks/collision/collisionobject.h>
 
-using circuit::TileMap;
+using circuit::view::TileMap;
 using circuit::Body;
 using pyramidworks::collision::CollisionManager;
 using ugdk::Color;

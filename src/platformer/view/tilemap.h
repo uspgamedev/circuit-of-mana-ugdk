@@ -9,6 +9,7 @@
 #include <vector>
 
 namespace circuit {
+namespace view {
 
 class TileMap final {
   public:
@@ -26,6 +27,7 @@ class TileMap final {
     std::unique_ptr<ugdk::graphic::Primitive>     map_primitive_;
 };
 
+} // namespace view
 } // namespace circuit
 
 #endif // CIRCUITOFMANA_TILEMAP_H_

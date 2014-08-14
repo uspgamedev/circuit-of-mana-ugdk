@@ -1,5 +1,5 @@
 
-#include "tilemap.h"
+#include "view/tilemap.h"
 
 #include <iostream>
 
@@ -12,6 +12,9 @@
 #include <ugdk/graphic/opengl/shaderuse.h>
 
 namespace circuit {
+namespace view {
+
+namespace {
 
 using std::make_shared;
 using std::shared_ptr;
@@ -25,8 +28,6 @@ using ugdk::graphic::VertexData;
 using ugdk::graphic::opengl::ShaderUse;
 using ugdk::graphic::manager;
 using ugdk::graphic::opengl::VertexType;
-
-namespace {
 
 struct VertexXYUV {
     GLfloat x, y, u, v;
@@ -116,5 +117,6 @@ void TileMap::Render(Canvas& canvas) const {
 
 TileMap::TileMap() : tileset_(nullptr), map_primitive_(nullptr) {}
 
+} // namespace view
 } // namespace circuit
 
