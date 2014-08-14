@@ -89,16 +89,14 @@ Body::Space space = {
     }
 };
 
-circuit::view::StageRenderer  renderer(nullptr);
+unique_ptr<circuit::view::StageRenderer> renderer;
 Body::Ptr                     mage;
 vector<Body::Ptr>             stuff(BODY_COUNT, nullptr);
 unique_ptr<CollisionManager>  collision_manager;
 
 void Rendering(Canvas& canvas) {
-    renderer.Render(canvas);
+    renderer->Render(canvas, stuff);
     mage->Render(canvas);
-    for (auto& body : stuff)
-        body->Render(canvas);
 }
 
 void CheckInputTask(double /*unused*/) {
@@ -146,7 +144,7 @@ int main(int argc, char* argv[]) {
     collision_manager->Find("body");
     ugdk::action::Scene* ourscene = new ugdk::action::Scene;
     GenerateBodies();
-    renderer = circuit::view::StageRenderer(TileMap::Create("sample", data));
+    renderer.reset(new circuit::view::StageRenderer(TileMap::Create("sample", data)));
     ourscene->set_render_function(Rendering);
     ourscene->AddTask(Task(CheckInputTask, 0.1));
     ourscene->AddTask(collision_manager->GenerateHandleCollisionTask(0.2));

@@ -6,9 +6,11 @@ add_ugdk_executable (
   main.cc
   body.cc
   body.h
-  view/tilemap.cc
-  view/tilemap.h
+  view/blank.h
+  view/blank.cc
   view/stagerenderer.h
   view/stagerenderer.cc
+  view/tilemap.cc
+  view/tilemap.h
 )
 
