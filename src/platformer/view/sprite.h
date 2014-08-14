@@ -6,7 +6,7 @@
 #include <vector>
 #include <ugdk/math.h>
 #include <ugdk/graphic.h>
-#include "body.h"
+#include "model/body.h"
 
 namespace circuit {
 namespace view {
@@ -14,7 +14,8 @@ namespace view {
 class Sprite {
   public:
     Sprite();
-    void Render(ugdk::graphic::Canvas& canvas, const std::vector<Body::Ptr>& bodies);
+    void Render(ugdk::graphic::Canvas& canvas,
+                const std::vector<model::Body::Ptr>& bodies);
   private:
     std::unique_ptr<ugdk::graphic::Primitive> blank_primitive_;
 };

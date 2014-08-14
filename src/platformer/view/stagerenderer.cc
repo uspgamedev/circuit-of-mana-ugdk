@@ -6,17 +6,18 @@
 #include <ugdk/structure/types.h>
 #include "view/tilemap.h"
 
+namespace circuit {
+namespace view {
+
 namespace {
 
+using model::Body;
 using ugdk::Color;
 using ugdk::graphic::Canvas;
 using std::unique_ptr;
 using std::vector;
 
 } // unnamed namespace
-
-namespace circuit {
-namespace view {
 
 StageRenderer::StageRenderer(unique_ptr<TileMap>&& the_tilemap)
     : tilemap_(std::move(the_tilemap)) {}

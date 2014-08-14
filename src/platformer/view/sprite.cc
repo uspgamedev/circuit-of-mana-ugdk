@@ -14,6 +14,7 @@ namespace view {
 
 namespace {
 
+using model::Body;
 using ugdk::graphic::Canvas;
 using ugdk::graphic::Geometry;
 using ugdk::graphic::manager;

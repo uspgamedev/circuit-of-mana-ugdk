@@ -1,6 +1,6 @@
 
-#ifndef CIRCUITOFMANA_BODY_H_
-#define CIRCUITOFMANA_BODY_H_
+#ifndef CIRCUITOFMANA_MODEL_BODY_H_
+#define CIRCUITOFMANA_MODEL_BODY_H_
 
 #include <memory>
 #include <unordered_set>
@@ -11,6 +11,7 @@
 #include <pyramidworks/geometry.h>
 
 namespace circuit {
+namespace model {
 
 class Body final : public ugdk::action::Entity {
   public:
@@ -55,7 +56,8 @@ class Body final : public ugdk::action::Entity {
     static std::unordered_set<Ptr>                            bodies;
 };
 
+} // namespace model
 } // namespace circuit
 
-#endif // CIRCUITOFMANA_BODY_H_
+#endif // CIRCUITOFMANA_MODEL_BODY_H_
 

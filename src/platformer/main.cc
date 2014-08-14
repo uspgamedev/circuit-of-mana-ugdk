@@ -1,5 +1,5 @@
 
-#include "body.h"
+#include "model/body.h"
 #include "view/tilemap.h"
 #include "view/stagerenderer.h"
 
@@ -24,7 +24,7 @@
 #include <pyramidworks/collision/collisionobject.h>
 
 using circuit::view::TileMap;
-using circuit::Body;
+using circuit::model::Body;
 using pyramidworks::collision::CollisionManager;
 using ugdk::Color;
 using ugdk::graphic::Canvas;

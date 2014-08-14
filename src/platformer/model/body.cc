@@ -1,5 +1,5 @@
 
-#include "body.h"
+#include "model/body.h"
 
 #include <iostream>
 #include <utility>
@@ -9,6 +9,7 @@
 #include <ugdk/structure/types.h>
 
 namespace circuit {
+namespace model {
 
 using pyramidworks::collision::CollisionObject;
 using pyramidworks::geometry::Rect;
@@ -103,5 +104,6 @@ void Body::MoveAll(const Space& space, const double dt) {
     }
 }
 
+} // namespace model
 } // namespace circuit
 
