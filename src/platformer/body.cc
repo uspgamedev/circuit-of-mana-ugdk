@@ -148,11 +148,11 @@ void Body::Prepare() {
 void Body::Render(Canvas& canvas) const {
     shared_ptr<const VertexData> data = body_primitive_->vertexdata();
 
-    canvas.PushAndCompose(Geometry(Vector2D(Integer2D(position_) * 32.0), Vector2D(32.0, 32.0)));
-    canvas.PushAndCompose(VisualEffect(Color(.4, .4, .8, 1.0)));
-    ugdk::graphic::DrawSquare(canvas.current_geometry(), canvas.current_visualeffect(), manager()->white_texture());
-    canvas.PopVisualEffect();
-    canvas.PopGeometry();
+    //canvas.PushAndCompose(Geometry(Vector2D(Integer2D(position_) * 32.0), Vector2D(32.0, 32.0)));
+    //canvas.PushAndCompose(VisualEffect(Color(.4, .4, .8, 1.0)));
+    //ugdk::graphic::DrawSquare(canvas.current_geometry(), canvas.current_visualeffect(), manager()->white_texture());
+    //canvas.PopVisualEffect();
+    //canvas.PopGeometry();
 
     canvas.PushAndCompose(Geometry(position_ * 32.0));
 
