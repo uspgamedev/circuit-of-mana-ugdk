@@ -37,7 +37,7 @@ using std::vector;
 
 namespace {
 
-const double MAGE_SPEED = 15.0;
+const double MAGE_SPEED = 20.0;
 const double FRAME_TIME = 1.0/60.0;
 const size_t BODY_COUNT = 2;
 double lag = 0.0;
@@ -153,7 +153,7 @@ int main(int argc, char* argv[]) {
             if(ev.scancode == ugdk::input::Scancode::ESCAPE)
                 ourscene->Finish();
             else if(ev.scancode == ugdk::input::Scancode::UP)
-                mage->ApplyForce(Vector2D(0.0, -600.0));
+                mage->ApplyForce(Vector2D(0.0, -1200.0));
         });
     ugdk::system::PushScene(ourscene);
     ugdk::system::Run();
