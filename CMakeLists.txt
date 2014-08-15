@@ -41,6 +41,9 @@ add_custom_target (
   COMMAND ${CMAKE_COMMAND} -E copy_directory
           ${CMAKE_CURRENT_BINARY_DIR}/assets/resources/fonts/
           ${CMAKE_CURRENT_BINARY_DIR}/assets/fonts/
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+          ${CMAKE_CURRENT_BINARY_DIR}/assets/resources/animations/
+          ${CMAKE_CURRENT_BINARY_DIR}/assets/animations/
   COMMAND ${CMAKE_COMMAND} -E remove_directory
           ${CMAKE_CURRENT_BINARY_DIR}/assets/resources/
   COMMAND ${CMAKE_COMMAND} -E remove
