@@ -68,7 +68,7 @@ Sprite::Sprite(const string& name, TaskPlayer* task_player)
       animation_table_(LoadSpriteAnimationTableFromFile("animations/being.json")) {
     // Create animation player and register on task player
     animation_player_.reset(new AnimationPlayer(animation_table_.get()));
-    animation_player_->Select("STANDING_RIGHT");
+    animation_player_->Select("WALKING_RIGHT");
     auto task_function = bind(mem_fn(&AnimationPlayer::Update), animation_player_.get(), _1);
     task_player->AddTask(Task(task_function, 0.9));
     // Load tileset
