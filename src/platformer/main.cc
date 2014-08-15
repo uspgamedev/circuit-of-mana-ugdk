@@ -142,7 +142,8 @@ int main(int argc, char* argv[]) {
     collision_manager->Find("body");
     ugdk::action::Scene* ourscene = new ugdk::action::Scene;
     GenerateBodies();
-    renderer.reset(new circuit::view::StageRenderer(TileMap::Create("sample", data)));
+    renderer.reset(new circuit::view::StageRenderer(
+              TileMap::Create("sample", data), ourscene));
     ourscene->set_render_function(Rendering);
     ourscene->AddTask(Task(CheckInputTask, 0.1));
     ourscene->AddTask(collision_manager->GenerateHandleCollisionTask(0.2));
