@@ -17,6 +17,7 @@ using ugdk::Color;
 using ugdk::graphic::Canvas;
 using ugdk::system::TaskPlayer;
 using std::unique_ptr;
+using std::shared_ptr;
 using std::vector;
 
 } // unnamed namespace
@@ -24,12 +25,12 @@ using std::vector;
 StageRenderer::StageRenderer(unique_ptr<TileMap>&& the_tilemap, TaskPlayer* task_player)
     : tilemap_(std::move(the_tilemap)), sprite_("female-mage-sprite", task_player) {}
 
-void StageRenderer::Render(Canvas& canvas, const vector<Body::Ptr>& bodies,
-                           const Body::Ptr& mage) {
+void StageRenderer::Render(Canvas& canvas, const vector<shared_ptr<Body>>& bodies,
+                           const shared_ptr<Body>& mage) {
     canvas.Clear(Color(.4, .2, .2));
     tilemap_->Render(canvas);
     blank_.Render(canvas, bodies);
-    sprite_.Render(canvas, vector<Body::Ptr>(1u, mage));
+    sprite_.Render(canvas, vector<shared_ptr<Body>>(1u, mage));
 }
 
 } // namespace view

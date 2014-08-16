@@ -3,6 +3,7 @@
 #define CIRCUITOFMANA_VIEW_SPRITE_H_
 
 #include <functional>
+#include <memory>
 #include <vector>
 #include <ugdk/action.h>
 #include <ugdk/action/animationplayer.h>
@@ -21,7 +22,7 @@ class Sprite {
   public:
     Sprite(const std::string& name, ugdk::system::TaskPlayer* task_player);
     void Render(ugdk::graphic::Canvas& canvas,
-                const std::vector<model::Body::Ptr>& bodies);
+                const std::vector<std::shared_ptr<model::Body>>& bodies);
   private:
     using AnimationPlayer = ugdk::action::AnimationPlayer<ugdk::action::SpriteAnimationFrame>;
     std::unique_ptr<ugdk::graphic::Primitive>           primitive_;

@@ -87,7 +87,7 @@ Sprite::Sprite(const string& name, TaskPlayer* task_player)
     }
 }
 
-void Sprite::Render(Canvas& canvas, const vector<Body::Ptr>& bodies) {
+void Sprite::Render(Canvas& canvas, const vector<shared_ptr<Body>>& bodies) {
     ShaderUse shader_use(manager()->shaders().current_shader());
     shared_ptr<const VertexData> data = primitive_->vertexdata();
     string frame_name = animation_player_->current_animation_frame().atlas_frame_name();

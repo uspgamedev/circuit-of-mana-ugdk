@@ -15,7 +15,6 @@ namespace model {
 
 class Body final : public ugdk::action::Entity {
   public:
-    using Ptr = std::shared_ptr<Body>;
     enum LookingDirection {
         LOOKING_RIGHT,
         LOOKING_LEFT
@@ -53,7 +52,7 @@ class Body final : public ugdk::action::Entity {
         AddSpeed(ugdk::math::Vector2D(dx, dy));
     }
     void Update(double dt) override {}
-    static Ptr Create(const ugdk::math::Vector2D& the_position);
+    static std::shared_ptr<Body> Create(const ugdk::math::Vector2D& the_position);
     static void MoveAll(const Space& space, const double dt);
   private:
     Body(const ugdk::math::Vector2D& the_position);
@@ -64,7 +63,7 @@ class Body final : public ugdk::action::Entity {
     ugdk::math::Vector2D                                      force_;
     std::unordered_set<Body*>                                 collided_;
     std::unique_ptr<pyramidworks::collision::CollisionObject> collision_;
-    static std::unordered_set<Ptr>                            bodies;
+    static std::unordered_set<std::shared_ptr<Body>>           bodies;
 };
 
 } // namespace model

@@ -20,8 +20,8 @@ class StageRenderer final {
     StageRenderer(std::unique_ptr<TileMap>&& the_tilemap,
                   ugdk::system::TaskPlayer* task_player); 
     void Render(ugdk::graphic::Canvas& canvas,
-                const std::vector<model::Body::Ptr>& bodies,
-                const model::Body::Ptr& mage);
+                const std::vector<std::shared_ptr<model::Body>>& bodies,
+                const std::shared_ptr<model::Body>& mage);
   private:
     std::unique_ptr<TileMap>  tilemap_;
     Blank                     blank_;

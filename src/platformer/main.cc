@@ -34,6 +34,7 @@ using ugdk::system::Configuration;
 using ugdk::system::Task;
 using std::unique_ptr;
 using std::vector;
+using std::shared_ptr;
 
 namespace {
 
@@ -90,10 +91,10 @@ Body::Space space = {
     }
 };
 
-unique_ptr<circuit::view::StageRenderer> renderer;
-Body::Ptr                     mage;
-vector<Body::Ptr>             stuff(BODY_COUNT, nullptr);
-unique_ptr<CollisionManager>  collision_manager;
+unique_ptr<circuit::view::StageRenderer>  renderer;
+shared_ptr<Body>                          mage;
+vector<shared_ptr<Body>>                  stuff(BODY_COUNT, nullptr);
+unique_ptr<CollisionManager>              collision_manager;
 
 void Rendering(Canvas& canvas) {
     renderer->Render(canvas, stuff, mage);
@@ -159,7 +160,7 @@ int main(int argc, char* argv[]) {
     ugdk::system::Run();
     ugdk::system::Release();
     stuff.clear();
-    mage = Body::Ptr(nullptr);
+    mage.reset();
     return 0;
 }
 
