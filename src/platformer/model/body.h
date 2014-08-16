@@ -16,6 +16,10 @@ namespace model {
 class Body final : public ugdk::action::Entity {
   public:
     using Ptr = std::shared_ptr<Body>;
+    enum LookingDirection {
+        LOOKING_RIGHT,
+        LOOKING_LEFT
+    };
     struct Space {
         size_t              width, height;
         std::vector<size_t> tiles;
@@ -26,8 +30,14 @@ class Body final : public ugdk::action::Entity {
     void set_name(const std::string& the_name) {
         name_ = the_name;
     }
+    LookingDirection looking_direction() const {
+        return looking_direction_;
+    }
     ugdk::math::Vector2D position() const {
         return position_;
+    }
+    double scalar_speed() const {
+        return speed_.Length();
     }
     void set_position(const ugdk::math::Vector2D& the_position);
     pyramidworks::collision::CollisionObject* collision() const {
@@ -48,11 +58,12 @@ class Body final : public ugdk::action::Entity {
   private:
     Body(const ugdk::math::Vector2D& the_position);
     std::string                                               name_;
-    std::unique_ptr<pyramidworks::collision::CollisionObject> collision_;
+    LookingDirection                                          looking_direction_;
     ugdk::math::Vector2D                                      position_, last_position_;
     ugdk::math::Vector2D                                      speed_;
     ugdk::math::Vector2D                                      force_;
     std::unordered_set<Body*>                                 collided_;
+    std::unique_ptr<pyramidworks::collision::CollisionObject> collision_;
     static std::unordered_set<Ptr>                            bodies;
 };
 
