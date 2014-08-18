@@ -157,7 +157,7 @@ int main(int argc, char* argv[]) {
         [ourscene](const ugdk::input::KeyPressedEvent& ev) {
             if(ev.scancode == ugdk::input::Scancode::ESCAPE)
                 ourscene->Finish();
-            else if(ev.scancode == ugdk::input::Scancode::Z)
+            else if(ev.scancode == ugdk::input::Scancode::Z && mage->on_floor())
                 mage->ApplyForce(Vector2D(0.0, -1200.0));
             else if(ev.scancode == ugdk::input::Scancode::X) {
                 AddBlankThing(mage->position() + Vector2D(0.5, -1.0));

@@ -38,6 +38,9 @@ class Body final : public ugdk::action::Entity {
     double scalar_speed() const {
         return speed_.Length();
     }
+    bool on_floor() const {
+        return on_floor_;
+    }
     void set_position(const ugdk::math::Vector2D& the_position);
     pyramidworks::collision::CollisionObject* collision() const {
         return collision_.get();
@@ -63,7 +66,8 @@ class Body final : public ugdk::action::Entity {
     ugdk::math::Vector2D                                      force_;
     std::unordered_set<Body*>                                 collided_;
     std::unique_ptr<pyramidworks::collision::CollisionObject> collision_;
-    static std::unordered_set<std::shared_ptr<Body>>           bodies;
+    bool                                                      on_floor_;
+    static std::unordered_set<std::shared_ptr<Body>>          bodies;
 };
 
 } // namespace model
