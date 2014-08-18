@@ -17,7 +17,7 @@ class Blank {
   public:
     Blank();
     void Render(ugdk::graphic::Canvas& canvas,
-                const std::vector<model::Body::Ptr>& bodies);
+                const std::vector<std::shared_ptr<model::Body>>& bodies);
   private:
     std::unique_ptr<ugdk::graphic::Primitive> blank_primitive_;
 };

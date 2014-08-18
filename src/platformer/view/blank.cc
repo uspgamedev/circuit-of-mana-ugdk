@@ -45,7 +45,7 @@ Blank::Blank() : blank_primitive_(nullptr) {
     mapper.Get<VertexXYUV>(3)->set_xyuv(16.0f, 0.0f, 1.0f, 1.0f);
 }
 
-void Blank::Render(Canvas& canvas, const vector<Body::Ptr>& bodies) {
+void Blank::Render(Canvas& canvas, const vector<shared_ptr<Body>>& bodies) {
     ShaderUse shader_use(manager()->shaders().current_shader());
     shared_ptr<const VertexData> data = blank_primitive_->vertexdata();
     shader_use.SendTexture(0, blank_primitive_->texture());

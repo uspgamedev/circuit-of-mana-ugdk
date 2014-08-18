@@ -34,10 +34,11 @@ using ugdk::system::Configuration;
 using ugdk::system::Task;
 using std::unique_ptr;
 using std::vector;
+using std::shared_ptr;
 
 namespace {
 
-const double MAGE_SPEED = 15.0;
+const double MAGE_SPEED = 20.0;
 const double FRAME_TIME = 1.0/60.0;
 const size_t BODY_COUNT = 2;
 double lag = 0.0;
@@ -90,10 +91,10 @@ Body::Space space = {
     }
 };
 
-unique_ptr<circuit::view::StageRenderer> renderer;
-Body::Ptr                     mage;
-vector<Body::Ptr>             stuff(BODY_COUNT, nullptr);
-unique_ptr<CollisionManager>  collision_manager;
+unique_ptr<circuit::view::StageRenderer>  renderer;
+shared_ptr<Body>                          mage;
+vector<shared_ptr<Body>>                  stuff(BODY_COUNT, nullptr);
+unique_ptr<CollisionManager>              collision_manager;
 
 void Rendering(Canvas& canvas) {
     renderer->Render(canvas, stuff, mage);
@@ -142,7 +143,8 @@ int main(int argc, char* argv[]) {
     collision_manager->Find("body");
     ugdk::action::Scene* ourscene = new ugdk::action::Scene;
     GenerateBodies();
-    renderer.reset(new circuit::view::StageRenderer(TileMap::Create("sample", data)));
+    renderer.reset(new circuit::view::StageRenderer(
+              TileMap::Create("sample", data), ourscene));
     ourscene->set_render_function(Rendering);
     ourscene->AddTask(Task(CheckInputTask, 0.1));
     ourscene->AddTask(collision_manager->GenerateHandleCollisionTask(0.2));
@@ -152,13 +154,13 @@ int main(int argc, char* argv[]) {
             if(ev.scancode == ugdk::input::Scancode::ESCAPE)
                 ourscene->Finish();
             else if(ev.scancode == ugdk::input::Scancode::UP)
-                mage->ApplyForce(Vector2D(0.0, -600.0));
+                mage->ApplyForce(Vector2D(0.0, -1200.0));
         });
     ugdk::system::PushScene(ourscene);
     ugdk::system::Run();
     ugdk::system::Release();
     stuff.clear();
-    mage = Body::Ptr(nullptr);
+    mage.reset();
     return 0;
 }
 

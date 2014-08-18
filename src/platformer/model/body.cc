@@ -48,14 +48,15 @@ pair<double, double> GetSpeedsAfterCollision(double v1, double v2) {
 
 } // unnamed namespace
 
-unordered_set<Body::Ptr> Body::bodies;
+unordered_set<shared_ptr<Body>> Body::bodies;
 
 Body::Body(const ugdk::math::Vector2D& the_position)
-        : collision_(nullptr), position_(the_position),
-          last_position_(the_position), speed_(0.0, 0.0), force_(0.0, 0.0) {}
+        : position_(the_position), looking_direction_(LOOKING_RIGHT),
+          last_position_(the_position), speed_(0.0, 0.0), force_(0.0, 0.0),
+          collision_(nullptr) {}
 
-Body::Ptr Body::Create(const ugdk::math::Vector2D& the_position) {
-    Ptr body(new Body(the_position));
+shared_ptr<Body> Body::Create(const ugdk::math::Vector2D& the_position) {
+    shared_ptr<Body> body(new Body(the_position));
     bodies.insert(body);
     body->collision_ = unique_ptr<CollisionObject>(
             new CollisionObject(body.get(), "body", new Rect(1.0, 1.0)));
@@ -87,9 +88,13 @@ void Body::set_position(const Vector2D& the_position) {
 
 void Body::MoveAll(const Space& space, const double dt) {
     for (auto& body : bodies) {
-      body->ApplyForce(Vector2D(0.0, 20.0));
+      body->ApplyForce(Vector2D(0.0, 40.0));
       body->ApplyForce(Vector2D(-5.0*body->speed_.x, 0));
       body->speed_ += body->force_*dt;
+      if (body->speed_.x < 0)
+          body->looking_direction_ = LOOKING_LEFT;
+      else if (body->speed_.x > 0)
+          body->looking_direction_ = LOOKING_RIGHT;
       if (IsColliding(space, body->position_ + body->speed_*dt)) {
           Vector2D horizontal = Vector2D(body->speed_.x, 0.0),
                    vertical = Vector2D(0.0, body->speed_.y);
