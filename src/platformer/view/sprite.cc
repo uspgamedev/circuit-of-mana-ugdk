@@ -100,11 +100,11 @@ void Sprite::Render(Canvas& canvas, const vector<shared_ptr<Body>>& bodies) {
                                 frame_index*sizeof(Frame)+2*sizeof(GLfloat), 2,
                                 data->vertex_size()/4);
     for (auto& body : bodies) {
-      canvas.PushAndCompose(Geometry(body->position() * 32.0));
-      shader_use.SendGeometry(canvas.current_geometry());
-      shader_use.SendEffect(canvas.current_visualeffect());
-      glDrawArrays(GL_TRIANGLE_STRIP, 0, 4u);
-      canvas.PopGeometry();
+        canvas.PushAndCompose(Geometry(body->position() * 32.0));
+        shader_use.SendGeometry(canvas.current_geometry());
+        shader_use.SendEffect(canvas.current_visualeffect());
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4u);
+        canvas.PopGeometry();
     }
 }
 

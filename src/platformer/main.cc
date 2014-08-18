@@ -93,7 +93,7 @@ Body::Space space = {
 
 unique_ptr<circuit::view::StageRenderer>  renderer;
 shared_ptr<Body>                          mage;
-vector<shared_ptr<Body>>                  stuff(BODY_COUNT, nullptr);
+vector<shared_ptr<Body>>                  stuff;
 unique_ptr<CollisionManager>              collision_manager;
 
 void Rendering(Canvas& canvas) {
@@ -116,6 +116,14 @@ void MoveMageTask(double dt) {
     }
 }
 
+void AddBlankThing(const Vector2D pos) {
+    shared_ptr<Body> new_body = Body::Create(pos);
+    stuff.push_back(new_body);
+    collision_manager->AddActiveObject(new_body->collision());
+    new_body->collision()->StartColliding(collision_manager.get());
+    //new_body->set_name("stuff-" + std::to_string(i));
+}
+
 void GenerateBodies() {
     mage = Body::Create(Vector2D(2.0, 2.0));
     mage->set_name("mage");
@@ -123,12 +131,8 @@ void GenerateBodies() {
     mage->collision()->StartColliding(collision_manager.get());
     std::default_random_engine generator(time(nullptr));
     std::uniform_real_distribution<double> distribution(3.0,20.0);
-    for (size_t i = 0; i < BODY_COUNT; ++i) {
-        stuff[i] = Body::Create(Vector2D(distribution(generator), 2.0));
-        collision_manager->AddActiveObject(stuff[i]->collision());
-        stuff[i]->collision()->StartColliding(collision_manager.get());
-        stuff[i]->set_name("stuff-" + std::to_string(i));
-    }
+    for (size_t i = 0; i < BODY_COUNT; ++i)
+        AddBlankThing(Vector2D(distribution(generator), 2.0));
 }
 
 } // unnamed namespace
@@ -153,8 +157,13 @@ int main(int argc, char* argv[]) {
         [ourscene](const ugdk::input::KeyPressedEvent& ev) {
             if(ev.scancode == ugdk::input::Scancode::ESCAPE)
                 ourscene->Finish();
-            else if(ev.scancode == ugdk::input::Scancode::UP)
+            else if(ev.scancode == ugdk::input::Scancode::Z && mage->on_floor())
                 mage->ApplyForce(Vector2D(0.0, -1200.0));
+            else if(ev.scancode == ugdk::input::Scancode::X) {
+                AddBlankThing(mage->position() + Vector2D(0.5, -1.0));
+                // WARNING: THE LINE BELOW HURTS
+                stuff.back()->ApplyForce(Vector2D(800.0, -800.0));
+            }
         });
     ugdk::system::PushScene(ourscene);
     ugdk::system::Run();

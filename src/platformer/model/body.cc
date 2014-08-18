@@ -2,6 +2,7 @@
 #include "model/body.h"
 
 #include <iostream>
+#include <cmath>
 #include <utility>
 #include <pyramidworks/collision/collisionobject.h>
 #include <pyramidworks/geometry/rect.h>
@@ -53,7 +54,7 @@ unordered_set<shared_ptr<Body>> Body::bodies;
 Body::Body(const ugdk::math::Vector2D& the_position)
         : position_(the_position), looking_direction_(LOOKING_RIGHT),
           last_position_(the_position), speed_(0.0, 0.0), force_(0.0, 0.0),
-          collision_(nullptr) {}
+          collision_(nullptr), on_floor_(false) {}
 
 shared_ptr<Body> Body::Create(const ugdk::math::Vector2D& the_position) {
     shared_ptr<Body> body(new Body(the_position));
@@ -95,13 +96,18 @@ void Body::MoveAll(const Space& space, const double dt) {
           body->looking_direction_ = LOOKING_LEFT;
       else if (body->speed_.x > 0)
           body->looking_direction_ = LOOKING_RIGHT;
+      if (body->on_floor_ && std::fabs(body->speed_.y) > 0.01)
+          body->on_floor_ = false;
       if (IsColliding(space, body->position_ + body->speed_*dt)) {
           Vector2D horizontal = Vector2D(body->speed_.x, 0.0),
                    vertical = Vector2D(0.0, body->speed_.y);
           if (IsColliding(space, body->position_ + horizontal*dt))
               body->speed_.x *= 0.0;
-          if (IsColliding(space, body->position_ + vertical*dt))
+          if (IsColliding(space, body->position_ + vertical*dt)) {
+              if (body->speed_.y > 0.0)
+                  body->on_floor_ = true;
               body->speed_.y *= 0.0;
+          }
       }
       body->set_position(body->position_ + body->speed_*dt);
       body->force_ *= 0;
