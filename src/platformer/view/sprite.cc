@@ -90,20 +90,24 @@ Sprite::Sprite(const string& name, TaskPlayer* task_player)
 void Sprite::Render(Canvas& canvas, const vector<shared_ptr<Body>>& bodies) {
     ShaderUse shader_use(manager()->shaders().current_shader());
     shared_ptr<const VertexData> data = primitive_->vertexdata();
-    string frame_name = animation_player_->current_animation_frame().atlas_frame_name();
-    size_t frame_index = stoul(frame_name)-1;
     shader_use.SendTexture(0, primitive_->texture());
     shader_use.SendVertexBuffer(data->buffer().get(), VertexType::VERTEX,
-                                frame_index*sizeof(Frame), 2,
+                                0, 2,
                                 data->vertex_size()/4);
     shader_use.SendVertexBuffer(data->buffer().get(), VertexType::TEXTURE,
-                                frame_index*sizeof(Frame)+2*sizeof(GLfloat), 2,
+                                2*sizeof(GLfloat), 2,
                                 data->vertex_size()/4);
     for (auto& body : bodies) {
+        // Geomtry + effects
         canvas.PushAndCompose(Geometry(body->position() * 32.0));
         shader_use.SendGeometry(canvas.current_geometry());
         shader_use.SendEffect(canvas.current_visualeffect());
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4u);
+        // Animation frame
+        string frame_name = animation_player_->current_animation_frame().atlas_frame_name();
+        size_t frame_index = stoul(frame_name)-1;
+        // Draw
+        glDrawArrays(GL_TRIANGLE_STRIP, frame_index*4, 4u);
+        // Clean up
         canvas.PopGeometry();
     }
 }
