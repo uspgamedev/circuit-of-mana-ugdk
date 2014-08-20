@@ -6,6 +6,7 @@
 #include <string>
 #include <ugdk/action/spritetypes.h>
 #include <ugdk/math/integer2D.h>
+#include <ugdk/math/vector2D.h>
 #include <ugdk/graphic/canvas.h>
 #include <ugdk/graphic/geometry.h>
 #include <ugdk/graphic/module.h>
@@ -24,6 +25,7 @@ namespace {
 using model::Body;
 using ugdk::action::LoadSpriteAnimationTableFromFile;
 using ugdk::math::Integer2D;
+using ugdk::math::Vector2D;
 using ugdk::graphic::Canvas;
 using ugdk::graphic::Geometry;
 using ugdk::graphic::manager;
@@ -61,6 +63,20 @@ struct Frame {
     }
 };
 
+string DiscoverAnimationName(const shared_ptr<const Body>& body) {
+    string dir;
+    if (body->looking_direction() == Body::LOOKING_RIGHT)
+        dir = "_RIGHT";
+    else
+        dir = "_LEFT";
+    string state;
+    if (std::fabs(body->speed().x) > 1.0)
+        state = "WALKING";
+    else
+        state = "STANDING";
+    return state+dir;
+}
+
 } // unnamed namespace
 
 Sprite::Sprite(const string& name, TaskPlayer* task_player)
@@ -68,7 +84,6 @@ Sprite::Sprite(const string& name, TaskPlayer* task_player)
       animation_table_(LoadSpriteAnimationTableFromFile("animations/being.json")) {
     // Create animation player and register on task player
     animation_player_.reset(new AnimationPlayer(animation_table_.get()));
-    animation_player_->Select("WALKING_RIGHT");
     auto task_function = bind(mem_fn(&AnimationPlayer::Update), animation_player_.get(), _1);
     task_player->AddTask(Task(task_function, 0.9));
     // Load tileset
@@ -90,20 +105,29 @@ Sprite::Sprite(const string& name, TaskPlayer* task_player)
 void Sprite::Render(Canvas& canvas, const vector<shared_ptr<Body>>& bodies) {
     ShaderUse shader_use(manager()->shaders().current_shader());
     shared_ptr<const VertexData> data = primitive_->vertexdata();
-    string frame_name = animation_player_->current_animation_frame().atlas_frame_name();
-    size_t frame_index = stoul(frame_name)-1;
     shader_use.SendTexture(0, primitive_->texture());
     shader_use.SendVertexBuffer(data->buffer().get(), VertexType::VERTEX,
-                                frame_index*sizeof(Frame), 2,
+                                0, 2,
                                 data->vertex_size()/4);
     shader_use.SendVertexBuffer(data->buffer().get(), VertexType::TEXTURE,
-                                frame_index*sizeof(Frame)+2*sizeof(GLfloat), 2,
+                                2*sizeof(GLfloat), 2,
                                 data->vertex_size()/4);
     for (auto& body : bodies) {
-        canvas.PushAndCompose(Geometry(body->position() * 32.0));
+        // Animation frame
+        animation_player_->Select(DiscoverAnimationName(body));
+        auto& frame = animation_player_->current_animation_frame();
+        string frame_name = frame.atlas_frame_name();
+        size_t frame_index = stoul(frame_name)-1;
+        // Geomtry + effects
+        Geometry geom = Geometry(body->position() * 32.0);
+        if (frame.mirror() & ugdk::MIRROR_HFLIP)
+            geom *= Geometry(Vector2D(), Vector2D(-1.0, 1.0));
+        canvas.PushAndCompose(geom);
         shader_use.SendGeometry(canvas.current_geometry());
         shader_use.SendEffect(canvas.current_visualeffect());
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4u);
+        // Draw
+        glDrawArrays(GL_TRIANGLE_STRIP, frame_index*4, 4u);
+        // Clean up
         canvas.PopGeometry();
     }
 }

@@ -90,13 +90,13 @@ void Body::set_position(const Vector2D& the_position) {
 void Body::MoveAll(const Space& space, const double dt) {
     for (auto& body : bodies) {
       body->ApplyForce(Vector2D(0.0, 40.0));
+      if (body->force_.x < 0)
+          body->looking_direction_ = LOOKING_LEFT;
+      else if (body->force_.x > 0)
+          body->looking_direction_ = LOOKING_RIGHT;
       body->ApplyForce(Vector2D(-5.0*body->speed_.x, 0));
       body->speed_ += body->force_*dt;
-      if (body->speed_.x < 0)
-          body->looking_direction_ = LOOKING_LEFT;
-      else if (body->speed_.x > 0)
-          body->looking_direction_ = LOOKING_RIGHT;
-      if (body->on_floor_ && std::fabs(body->speed_.y) > 0.01)
+      if (body->on_floor_ && std::fabs(body->speed_.y) > 0.05)
           body->on_floor_ = false;
       if (IsColliding(space, body->position_ + body->speed_*dt)) {
           Vector2D horizontal = Vector2D(body->speed_.x, 0.0),
@@ -109,6 +109,8 @@ void Body::MoveAll(const Space& space, const double dt) {
               body->speed_.y *= 0.0;
           }
       }
+      if (body->scalar_speed() < 0.4)
+          body->speed_ *= 0.0;
       body->set_position(body->position_ + body->speed_*dt);
       body->force_ *= 0;
       body->collided_.clear();
