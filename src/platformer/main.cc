@@ -160,7 +160,7 @@ int main(int argc, char* argv[]) {
             if(ev.scancode == ugdk::input::Scancode::Z && mage->on_floor())
                 mage->ApplyForce(Vector2D(0.0, -1200.0));
             if(ev.scancode == ugdk::input::Scancode::X) {
-                AddBlankThing(mage->position() + Vector2D(1.5, -1.0));
+                AddBlankThing(mage->front());
                 // WARNING: THE LINES BELOW HURTS
                 stuff.back()->set_density(0.0);
                 stuff.back()->ApplyForce(Vector2D(800.0, 0.0));
