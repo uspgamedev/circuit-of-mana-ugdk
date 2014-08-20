@@ -1,5 +1,6 @@
 
 #include "model/body.h"
+#include "model/solidmaterial.h"
 #include "view/tilemap.h"
 #include "view/stagerenderer.h"
 
@@ -23,8 +24,11 @@
 #include <pyramidworks/collision/collisionmanager.h>
 #include <pyramidworks/collision/collisionobject.h>
 
+namespace {
+
 using circuit::view::TileMap;
 using circuit::model::Body;
+using circuit::model::SolidMaterial;
 using pyramidworks::collision::CollisionManager;
 using ugdk::Color;
 using ugdk::graphic::Canvas;
@@ -35,8 +39,6 @@ using ugdk::system::Task;
 using std::unique_ptr;
 using std::vector;
 using std::shared_ptr;
-
-namespace {
 
 const double MAGE_SPEED = 30.0;
 const double FRAME_TIME = 1.0/60.0;
@@ -119,16 +121,14 @@ void MoveMageTask(double dt) {
 void AddBlankThing(const Vector2D pos) {
     shared_ptr<Body> new_body = Body::Create(pos);
     stuff.push_back(new_body);
-    collision_manager->AddActiveObject(new_body->collision());
-    new_body->collision()->StartColliding(collision_manager.get());
-    //new_body->set_name("stuff-" + std::to_string(i));
+    new_body->set_material(unique_ptr<SolidMaterial>(new SolidMaterial(new_body, *collision_manager)));
+    new_body->set_name("stuff-" + std::to_string(stuff.size()));
 }
 
 void GenerateBodies() {
     mage = Body::Create(Vector2D(2.0, 2.0));
     mage->set_name("mage");
-    collision_manager->AddActiveObject(mage->collision());
-    mage->collision()->StartColliding(collision_manager.get());
+    mage->set_material(unique_ptr<SolidMaterial>(new SolidMaterial(mage, *collision_manager)));
     std::default_random_engine generator(time(nullptr));
     std::uniform_real_distribution<double> distribution(3.0,20.0);
     for (size_t i = 0; i < BODY_COUNT; ++i)
@@ -145,6 +145,7 @@ int main(int argc, char* argv[]) {
     collision_manager = unique_ptr<CollisionManager>(new CollisionManager(
               Box<2>({-1.0, -1.0},{25.0, 19.0})));
     collision_manager->Find("body");
+    collision_manager->Find("arcane");
     ugdk::action::Scene* ourscene = new ugdk::action::Scene;
     GenerateBodies();
     renderer.reset(new circuit::view::StageRenderer(

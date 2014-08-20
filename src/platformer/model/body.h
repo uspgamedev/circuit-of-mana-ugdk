@@ -10,6 +10,8 @@
 #include <pyramidworks/collision.h>
 #include <pyramidworks/geometry.h>
 
+#include "model/solidmaterial.h"
+
 namespace circuit {
 namespace model {
 
@@ -50,8 +52,18 @@ class Body final : public ugdk::action::Entity {
     ugdk::math::Vector2D speed() const {
         return speed_;
     }
+    void set_speed(const ugdk::math::Vector2D& the_speed) {
+        speed_ = the_speed;
+    }
     double scalar_speed() const {
         return speed_.Length();
+    }
+    Material& material() const {
+        return *material_;
+    }
+    void set_material(std::unique_ptr<Material>&& the_material) {
+        material_ = std::move(the_material);
+        material_->OnSetupBody();
     }
     bool on_floor() const {
         return on_floor_;
@@ -60,9 +72,6 @@ class Body final : public ugdk::action::Entity {
         density_ = the_density;
     }
     void set_position(const ugdk::math::Vector2D& the_position);
-    pyramidworks::collision::CollisionObject* collision() const {
-        return collision_.get();
-    }
     void ApplyForce(const ugdk::math::Vector2D& the_force) {
         force_ += the_force;
     }
@@ -81,11 +90,10 @@ class Body final : public ugdk::action::Entity {
     Body(const ugdk::math::Vector2D& the_position, const double the_density);
     std::string                                               name_;
     LookingDirection                                          looking_direction_;
-    ugdk::math::Vector2D                                      position_, last_position_;
+    ugdk::math::Vector2D                                      position_;
     ugdk::math::Vector2D                                      speed_;
     ugdk::math::Vector2D                                      force_;
-    std::unordered_set<Body*>                                 collided_;
-    std::unique_ptr<pyramidworks::collision::CollisionObject> collision_;
+    std::unique_ptr<Material>                                 material_;
     bool                                                      on_floor_;
     double                                                    density_;
     static std::unordered_set<std::shared_ptr<Body>>          bodies;
