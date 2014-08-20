@@ -122,8 +122,6 @@ void AddBlankThing(const Vector2D pos) {
     shared_ptr<Body> new_body = Body::Create(pos);
     stuff.push_back(new_body);
     new_body->set_material(unique_ptr<SolidMaterial>(new SolidMaterial(new_body, *collision_manager)));
-    collision_manager->AddActiveObject(new_body->collision());
-    new_body->collision()->StartColliding(collision_manager.get());
     new_body->set_name("stuff-" + std::to_string(stuff.size()));
 }
 
@@ -131,8 +129,6 @@ void GenerateBodies() {
     mage = Body::Create(Vector2D(2.0, 2.0));
     mage->set_name("mage");
     mage->set_material(unique_ptr<SolidMaterial>(new SolidMaterial(mage, *collision_manager)));
-    collision_manager->AddActiveObject(mage->collision());
-    mage->collision()->StartColliding(collision_manager.get());
     std::default_random_engine generator(time(nullptr));
     std::uniform_real_distribution<double> distribution(3.0,20.0);
     for (size_t i = 0; i < BODY_COUNT; ++i)

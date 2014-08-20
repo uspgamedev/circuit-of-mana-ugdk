@@ -37,9 +37,6 @@ class Body final : public ugdk::action::Entity {
     ugdk::math::Vector2D position() const {
         return position_;
     }
-    ugdk::math::Vector2D last_position() const {
-        return last_position_;
-    }
     ugdk::math::Vector2D front_position() const {
         if (looking_direction_ == LOOKING_RIGHT)
           return position_ + ugdk::math::Vector2D(1.5, -1.0);
@@ -75,9 +72,6 @@ class Body final : public ugdk::action::Entity {
         density_ = the_density;
     }
     void set_position(const ugdk::math::Vector2D& the_position);
-    pyramidworks::collision::CollisionObject* collision() const {
-        return collision_.get();
-    }
     void ApplyForce(const ugdk::math::Vector2D& the_force) {
         force_ += the_force;
     }
@@ -96,12 +90,10 @@ class Body final : public ugdk::action::Entity {
     Body(const ugdk::math::Vector2D& the_position, const double the_density);
     std::string                                               name_;
     LookingDirection                                          looking_direction_;
-    ugdk::math::Vector2D                                      position_, last_position_;
+    ugdk::math::Vector2D                                      position_;
     ugdk::math::Vector2D                                      speed_;
     ugdk::math::Vector2D                                      force_;
     std::unique_ptr<Material>                                 material_;
-    std::unordered_set<Body*>                                 collided_;
-    std::unique_ptr<pyramidworks::collision::CollisionObject> collision_;
     bool                                                      on_floor_;
     double                                                    density_;
     static std::unordered_set<std::shared_ptr<Body>>          bodies;
