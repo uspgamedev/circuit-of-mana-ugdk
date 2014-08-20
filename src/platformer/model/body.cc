@@ -89,31 +89,40 @@ void Body::set_position(const Vector2D& the_position) {
 
 void Body::MoveAll(const Space& space, const double dt) {
     for (auto& body : bodies) {
-      body->ApplyForce(Vector2D(0.0, 40.0));
-      if (body->force_.x < 0)
-          body->looking_direction_ = LOOKING_LEFT;
-      else if (body->force_.x > 0)
-          body->looking_direction_ = LOOKING_RIGHT;
-      body->ApplyForce(Vector2D(-5.0*body->speed_.x, 0));
-      body->speed_ += body->force_*dt;
-      if (body->on_floor_ && std::fabs(body->speed_.y) > 0.05)
-          body->on_floor_ = false;
-      if (IsColliding(space, body->position_ + body->speed_*dt)) {
-          Vector2D horizontal = Vector2D(body->speed_.x, 0.0),
-                   vertical = Vector2D(0.0, body->speed_.y);
-          if (IsColliding(space, body->position_ + horizontal*dt))
-              body->speed_.x *= 0.0;
-          if (IsColliding(space, body->position_ + vertical*dt)) {
-              if (body->speed_.y > 0.0)
-                  body->on_floor_ = true;
-              body->speed_.y *= 0.0;
-          }
-      }
-      if (body->scalar_speed() < 0.4)
-          body->speed_ *= 0.0;
-      body->set_position(body->position_ + body->speed_*dt);
-      body->force_ *= 0;
-      body->collided_.clear();
+        // Apply gravity
+        body->ApplyForce(Vector2D(0.0, 40.0));
+        // Check looking direction
+        if (body->force_.x < 0)
+            body->looking_direction_ = LOOKING_LEFT;
+        else if (body->force_.x > 0)
+            body->looking_direction_ = LOOKING_RIGHT;
+        // Apply friction
+        body->ApplyForce(Vector2D(-5.0*body->speed_.x, 0));
+        // Update speed
+        body->speed_ += body->force_*dt;
+        // Check if body is airborne
+        if (body->on_floor_ && std::fabs(body->speed_.y) > 0.05)
+            body->on_floor_ = false;
+        // Check collision with scenery
+        if (IsColliding(space, body->position_ + body->speed_*dt)) {
+            Vector2D horizontal = Vector2D(body->speed_.x, 0.0),
+                     vertical = Vector2D(0.0, body->speed_.y);
+            if (IsColliding(space, body->position_ + horizontal*dt))
+                body->speed_.x *= 0.0;
+            if (IsColliding(space, body->position_ + vertical*dt)) {
+                if (body->speed_.y > 0.0)
+                    body->on_floor_ = true;
+                body->speed_.y *= 0.0;
+            }
+        }
+        // Round speed to zero if it is too low
+        if (body->scalar_speed() < 0.4)
+            body->speed_ *= 0.0;
+        // Update position
+        body->set_position(body->position_ + body->speed_*dt);
+        // Clearn up
+        body->force_ *= 0;
+        body->collided_.clear();
     }
 }
 
