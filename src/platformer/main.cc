@@ -160,10 +160,10 @@ int main(int argc, char* argv[]) {
             if(ev.scancode == ugdk::input::Scancode::Z && mage->on_floor())
                 mage->ApplyForce(Vector2D(0.0, -1200.0));
             if(ev.scancode == ugdk::input::Scancode::X) {
-                AddBlankThing(mage->front());
+                AddBlankThing(mage->front_position());
                 // WARNING: THE LINES BELOW HURTS
                 stuff.back()->set_density(0.0);
-                stuff.back()->ApplyForce(Vector2D(800.0, 0.0));
+                stuff.back()->ApplyForce(800.0*mage->front_direction());
             }
         });
     ugdk::system::PushScene(ourscene);

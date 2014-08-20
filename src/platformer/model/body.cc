@@ -103,7 +103,8 @@ void Body::MoveAll(const Space& space, const double dt) {
         else if (body->force_.x > 0)
             body->looking_direction_ = LOOKING_RIGHT;
         // Apply friction
-        body->ApplyForce(Vector2D(-5.0*body->speed_.x, 0));
+        if (body->density_ > 0.0)
+            body->ApplyForce(Vector2D(-5.0*body->speed_.x, 0));
         // Update speed
         body->speed_ += body->force_*dt;
         // Check if body is airborne

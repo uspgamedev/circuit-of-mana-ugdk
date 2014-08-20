@@ -35,11 +35,17 @@ class Body final : public ugdk::action::Entity {
     ugdk::math::Vector2D position() const {
         return position_;
     }
-    ugdk::math::Vector2D front() const {
+    ugdk::math::Vector2D front_position() const {
         if (looking_direction_ == LOOKING_RIGHT)
           return position_ + ugdk::math::Vector2D(1.5, -1.0);
         else
           return position_ + ugdk::math::Vector2D(-1.5, -1.0);
+    }
+    ugdk::math::Vector2D front_direction() const {
+        if (looking_direction_ == LOOKING_RIGHT)
+          return ugdk::math::Vector2D(1.0, 0.0);
+        else
+          return ugdk::math::Vector2D(-1.0, 0.0);
     }
     ugdk::math::Vector2D speed() const {
         return speed_;
