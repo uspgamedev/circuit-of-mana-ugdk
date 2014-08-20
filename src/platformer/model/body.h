@@ -58,10 +58,12 @@ class Body final : public ugdk::action::Entity {
         AddSpeed(ugdk::math::Vector2D(dx, dy));
     }
     void Update(double dt) override {}
+    static std::shared_ptr<Body> Create(const ugdk::math::Vector2D& the_position,
+                                        const double the_density);
     static std::shared_ptr<Body> Create(const ugdk::math::Vector2D& the_position);
     static void MoveAll(const Space& space, const double dt);
   private:
-    Body(const ugdk::math::Vector2D& the_position);
+    Body(const ugdk::math::Vector2D& the_position, const double the_density);
     std::string                                               name_;
     LookingDirection                                          looking_direction_;
     ugdk::math::Vector2D                                      position_, last_position_;
@@ -70,6 +72,7 @@ class Body final : public ugdk::action::Entity {
     std::unordered_set<Body*>                                 collided_;
     std::unique_ptr<pyramidworks::collision::CollisionObject> collision_;
     bool                                                      on_floor_;
+    double                                                    density_;
     static std::unordered_set<std::shared_ptr<Body>>          bodies;
 };
 

@@ -51,13 +51,14 @@ pair<double, double> GetSpeedsAfterCollision(double v1, double v2) {
 
 unordered_set<shared_ptr<Body>> Body::bodies;
 
-Body::Body(const ugdk::math::Vector2D& the_position)
+Body::Body(const ugdk::math::Vector2D& the_position, const double the_density)
         : position_(the_position), looking_direction_(LOOKING_RIGHT),
           last_position_(the_position), speed_(0.0, 0.0), force_(0.0, 0.0),
-          collision_(nullptr), on_floor_(false) {}
+          collision_(nullptr), on_floor_(false), density_(the_density) {}
 
-shared_ptr<Body> Body::Create(const ugdk::math::Vector2D& the_position) {
-    shared_ptr<Body> body(new Body(the_position));
+shared_ptr<Body> Body::Create(const ugdk::math::Vector2D& the_position,
+                              const double the_density) {
+    shared_ptr<Body> body(new Body(the_position, the_density));
     bodies.insert(body);
     body->collision_ = unique_ptr<CollisionObject>(
             new CollisionObject(body.get(), "body", new Rect(1.0, 1.0)));
@@ -81,6 +82,10 @@ shared_ptr<Body> Body::Create(const ugdk::math::Vector2D& the_position) {
     return body;
 }
 
+shared_ptr<Body> Body::Create(const ugdk::math::Vector2D& the_position) {
+    return Create(the_position, 1.0);
+}
+
 void Body::set_position(const Vector2D& the_position) {
     last_position_ = position_;
     position_ = the_position;
@@ -90,7 +95,8 @@ void Body::set_position(const Vector2D& the_position) {
 void Body::MoveAll(const Space& space, const double dt) {
     for (auto& body : bodies) {
         // Apply gravity
-        body->ApplyForce(Vector2D(0.0, 40.0));
+        if (body->density_ > 0.0)
+            body->ApplyForce(Vector2D(0.0, 40.0));
         // Check looking direction
         if (body->force_.x < 0)
             body->looking_direction_ = LOOKING_LEFT;
