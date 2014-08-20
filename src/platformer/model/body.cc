@@ -63,7 +63,7 @@ shared_ptr<Body> Body::Create(const ugdk::math::Vector2D& the_position,
     bodies.insert(body);
     body->collision_ = unique_ptr<CollisionObject>(new CollisionObject(
           body.get(), "body", new Rect(1.0, 1.0)));
-    //body->collision_->AddCollisionLogic("solid", [body] (const CollisionObject* other) {
+    //body->collision_->AddCollisionLogic("body", [body] (const CollisionObject* other) {
     //    Body* target = dynamic_cast<Body*>(other->owner());
     //    if (body->collided_.count(target) > 0)
     //        return;
@@ -73,7 +73,8 @@ shared_ptr<Body> Body::Create(const ugdk::math::Vector2D& the_position,
     //    auto target_speed = DecomposeInDir(target->speed_, collision_dir);
     //    if ((target_speed.first - body_speed.first)*collision_dir >= 0.0)
     //        return;
-    //    auto result = GetSpeedsAfterCollision(body_speed.first.length(), target_speed.first.length());
+    //    auto result = GetSpeedsAfterCollision(body_speed.first.length(),
+    //                                        target_speed.first.length());
     //    body->speed_ = target_speed.first.Normalize()*result.first + body_speed.second;
     //    target->speed_ = body_speed.first.Normalize()*result.second + target_speed.second;
     //    body->set_position(body->last_position_);
@@ -101,6 +102,7 @@ void Body::MoveAll(const Space& space, const double dt) {
             body->looking_direction_ = LOOKING_LEFT;
         else if (body->force_.x > 0)
             body->looking_direction_ = LOOKING_RIGHT;
+        body->material_->OnPhysicsUpdate();
         // Apply gravity
         if (body->density_ > 0.0)
             body->ApplyForce(Vector2D(0.0, 40.0));

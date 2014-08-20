@@ -56,13 +56,13 @@ void SolidMaterial::OnSetupBody() {
         auto target_speed = DecomposeInDir(target->speed(), collision_dir);
         if ((target_speed.first - body_speed.first)*collision_dir >= 0.0)
             return;
-        auto result = GetSpeedsAfterCollision(body_speed.first.length(), target_speed.first.length());
+        auto result = GetSpeedsAfterCollision(body_speed.first.length(),
+                                              target_speed.first.length());
         body()->set_speed(target_speed.first.Normalize()*result.first + body_speed.second);
         target->set_speed(body_speed.first.Normalize()*result.second + target_speed.second);
         body()->set_position(body()->last_position());
         target->set_position(target->last_position());
     });
-    collision_->MoveTo(body()->position() + Vector2D(0.0, -0.5));
     manager_.AddActiveObject(collision_.get());
     collision_->StartColliding(&manager_);
 }
@@ -72,7 +72,7 @@ void SolidMaterial::OnPositionChange() {
 }
 
 void SolidMaterial::OnPhysicsUpdate() {
-    
+    collided_.clear();
 }
 
 void SolidMaterial::OnSceneryCollision() {
