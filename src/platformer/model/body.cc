@@ -109,6 +109,8 @@ void Body::MoveAll(const Space& space, const double dt) {
               body->speed_.y *= 0.0;
           }
       }
+      if (body->scalar_speed() < 0.4)
+          body->speed_ *= 0.0;
       body->set_position(body->position_ + body->speed_*dt);
       body->force_ *= 0;
       body->collided_.clear();

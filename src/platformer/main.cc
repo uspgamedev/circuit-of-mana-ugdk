@@ -38,7 +38,7 @@ using std::shared_ptr;
 
 namespace {
 
-const double MAGE_SPEED = 20.0;
+const double MAGE_SPEED = 30.0;
 const double FRAME_TIME = 1.0/60.0;
 const size_t BODY_COUNT = 2;
 double lag = 0.0;
