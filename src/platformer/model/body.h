@@ -35,6 +35,9 @@ class Body final : public ugdk::action::Entity {
     ugdk::math::Vector2D position() const {
         return position_;
     }
+    ugdk::math::Vector2D speed() const {
+        return speed_;
+    }
     double scalar_speed() const {
         return speed_.Length();
     }

@@ -96,7 +96,7 @@ void Body::MoveAll(const Space& space, const double dt) {
           body->looking_direction_ = LOOKING_RIGHT;
       body->ApplyForce(Vector2D(-5.0*body->speed_.x, 0));
       body->speed_ += body->force_*dt;
-      if (body->on_floor_ && std::fabs(body->speed_.y) > 0.01)
+      if (body->on_floor_ && std::fabs(body->speed_.y) > 0.05)
           body->on_floor_ = false;
       if (IsColliding(space, body->position_ + body->speed_*dt)) {
           Vector2D horizontal = Vector2D(body->speed_.x, 0.0),

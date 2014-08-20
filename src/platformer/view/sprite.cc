@@ -69,7 +69,12 @@ string DiscoverAnimationName(const shared_ptr<const Body>& body) {
         dir = "_RIGHT";
     else
         dir = "_LEFT";
-    return "WALKING"+dir;
+    string state;
+    if (std::fabs(body->speed().x) > 1.0)
+        state = "WALKING";
+    else
+        state = "STANDING";
+    return state+dir;
 }
 
 } // unnamed namespace
