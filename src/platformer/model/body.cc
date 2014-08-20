@@ -54,31 +54,32 @@ unordered_set<shared_ptr<Body>> Body::bodies;
 Body::Body(const ugdk::math::Vector2D& the_position, const double the_density)
         : position_(the_position), looking_direction_(LOOKING_RIGHT),
           last_position_(the_position), speed_(0.0, 0.0), force_(0.0, 0.0),
-          collision_(nullptr), on_floor_(false), density_(the_density) {}
+          material_(nullptr), collision_(nullptr),
+          on_floor_(false), density_(the_density) {}
 
 shared_ptr<Body> Body::Create(const ugdk::math::Vector2D& the_position,
                               const double the_density) {
     shared_ptr<Body> body(new Body(the_position, the_density));
     bodies.insert(body);
-    body->collision_ = unique_ptr<CollisionObject>(
-            new CollisionObject(body.get(), "body", new Rect(1.0, 1.0)));
-    body->collision_->AddCollisionLogic("body", [body] (const CollisionObject* other) {
-        Body* target = dynamic_cast<Body*>(other->owner());
-        if (body->collided_.count(target) > 0)
-            return;
-        target->collided_.insert(body.get());
-        Vector2D collision_dir = (target->position_ - body->position_).Normalize();
-        auto body_speed = DecomposeInDir(body->speed_, collision_dir);
-        auto target_speed = DecomposeInDir(target->speed_, collision_dir);
-        if ((target_speed.first - body_speed.first)*collision_dir >= 0.0)
-            return;
-        auto result = GetSpeedsAfterCollision(body_speed.first.length(), target_speed.first.length());
-        body->speed_ = target_speed.first.Normalize()*result.first + body_speed.second;
-        target->speed_ = body_speed.first.Normalize()*result.second + target_speed.second;
-        body->set_position(body->last_position_);
-        target->set_position(target->last_position_);
-    });
-    body->collision_->MoveTo(body->position_ + Vector2D(0.0, -0.5));
+    body->collision_ = unique_ptr<CollisionObject>(new CollisionObject(
+          body.get(), "body", new Rect(1.0, 1.0)));
+    //body->collision_->AddCollisionLogic("solid", [body] (const CollisionObject* other) {
+    //    Body* target = dynamic_cast<Body*>(other->owner());
+    //    if (body->collided_.count(target) > 0)
+    //        return;
+    //    target->collided_.insert(body.get());
+    //    Vector2D collision_dir = (target->position_ - body->position_).Normalize();
+    //    auto body_speed = DecomposeInDir(body->speed_, collision_dir);
+    //    auto target_speed = DecomposeInDir(target->speed_, collision_dir);
+    //    if ((target_speed.first - body_speed.first)*collision_dir >= 0.0)
+    //        return;
+    //    auto result = GetSpeedsAfterCollision(body_speed.first.length(), target_speed.first.length());
+    //    body->speed_ = target_speed.first.Normalize()*result.first + body_speed.second;
+    //    target->speed_ = body_speed.first.Normalize()*result.second + target_speed.second;
+    //    body->set_position(body->last_position_);
+    //    target->set_position(target->last_position_);
+    //});
+    //body->collision_->MoveTo(body->position_ + Vector2D(0.0, -0.5));
     return body;
 }
 
@@ -90,18 +91,19 @@ void Body::set_position(const Vector2D& the_position) {
     last_position_ = position_;
     position_ = the_position;
     collision_->MoveTo(position_ + Vector2D(0.0, -0.5));
+    material_->OnPositionChange();
 }
 
 void Body::MoveAll(const Space& space, const double dt) {
     for (auto& body : bodies) {
-        // Apply gravity
-        if (body->density_ > 0.0)
-            body->ApplyForce(Vector2D(0.0, 40.0));
         // Check looking direction
         if (body->force_.x < 0)
             body->looking_direction_ = LOOKING_LEFT;
         else if (body->force_.x > 0)
             body->looking_direction_ = LOOKING_RIGHT;
+        // Apply gravity
+        if (body->density_ > 0.0)
+            body->ApplyForce(Vector2D(0.0, 40.0));
         // Apply friction
         if (body->density_ > 0.0)
             body->ApplyForce(Vector2D(-5.0*body->speed_.x, 0));

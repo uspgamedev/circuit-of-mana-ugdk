@@ -10,6 +10,8 @@
 #include <pyramidworks/collision.h>
 #include <pyramidworks/geometry.h>
 
+#include "model/solidmaterial.h"
+
 namespace circuit {
 namespace model {
 
@@ -35,6 +37,9 @@ class Body final : public ugdk::action::Entity {
     ugdk::math::Vector2D position() const {
         return position_;
     }
+    ugdk::math::Vector2D last_position() const {
+        return last_position_;
+    }
     ugdk::math::Vector2D front_position() const {
         if (looking_direction_ == LOOKING_RIGHT)
           return position_ + ugdk::math::Vector2D(1.5, -1.0);
@@ -50,8 +55,18 @@ class Body final : public ugdk::action::Entity {
     ugdk::math::Vector2D speed() const {
         return speed_;
     }
+    void set_speed(const ugdk::math::Vector2D& the_speed) {
+        speed_ = the_speed;
+    }
     double scalar_speed() const {
         return speed_.Length();
+    }
+    Material& material() const {
+        return *material_;
+    }
+    void set_material(std::unique_ptr<Material>&& the_material) {
+        material_ = std::move(the_material);
+        material_->OnSetupBody();
     }
     bool on_floor() const {
         return on_floor_;
@@ -84,6 +99,7 @@ class Body final : public ugdk::action::Entity {
     ugdk::math::Vector2D                                      position_, last_position_;
     ugdk::math::Vector2D                                      speed_;
     ugdk::math::Vector2D                                      force_;
+    std::unique_ptr<Material>                                 material_;
     std::unordered_set<Body*>                                 collided_;
     std::unique_ptr<pyramidworks::collision::CollisionObject> collision_;
     bool                                                      on_floor_;
