@@ -157,12 +157,13 @@ int main(int argc, char* argv[]) {
         [ourscene](const ugdk::input::KeyPressedEvent& ev) {
             if(ev.scancode == ugdk::input::Scancode::ESCAPE)
                 ourscene->Finish();
-            else if(ev.scancode == ugdk::input::Scancode::Z && mage->on_floor())
+            if(ev.scancode == ugdk::input::Scancode::Z && mage->on_floor())
                 mage->ApplyForce(Vector2D(0.0, -1200.0));
-            else if(ev.scancode == ugdk::input::Scancode::X) {
-                AddBlankThing(mage->position() + Vector2D(0.5, -1.0));
-                // WARNING: THE LINE BELOW HURTS
-                stuff.back()->ApplyForce(Vector2D(800.0, -800.0));
+            if(ev.scancode == ugdk::input::Scancode::X) {
+                AddBlankThing(mage->position() + Vector2D(1.5, -1.0));
+                // WARNING: THE LINES BELOW HURTS
+                stuff.back()->set_density(0.0);
+                stuff.back()->ApplyForce(Vector2D(800.0, 0.0));
             }
         });
     ugdk::system::PushScene(ourscene);

@@ -44,6 +44,9 @@ class Body final : public ugdk::action::Entity {
     bool on_floor() const {
         return on_floor_;
     }
+    void set_density(const double the_density) {
+        density_ = the_density;
+    }
     void set_position(const ugdk::math::Vector2D& the_position);
     pyramidworks::collision::CollisionObject* collision() const {
         return collision_.get();
