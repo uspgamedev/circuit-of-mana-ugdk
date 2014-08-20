@@ -124,7 +124,7 @@ void AddBlankThing(const Vector2D pos) {
     new_body->set_material(unique_ptr<SolidMaterial>(new SolidMaterial(new_body, *collision_manager)));
     collision_manager->AddActiveObject(new_body->collision());
     new_body->collision()->StartColliding(collision_manager.get());
-    //new_body->set_name("stuff-" + std::to_string(i));
+    new_body->set_name("stuff-" + std::to_string(stuff.size()));
 }
 
 void GenerateBodies() {

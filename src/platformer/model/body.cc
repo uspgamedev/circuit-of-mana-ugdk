@@ -67,18 +67,17 @@ shared_ptr<Body> Body::Create(const ugdk::math::Vector2D& the_position,
     //    Body* target = dynamic_cast<Body*>(other->owner());
     //    if (body->collided_.count(target) > 0)
     //        return;
+    //    std::cout << "Collision by " << body->name() << std::endl;
     //    target->collided_.insert(body.get());
-    //    Vector2D collision_dir = (target->position_ - body->position_).Normalize();
-    //    auto body_speed = DecomposeInDir(body->speed_, collision_dir);
-    //    auto target_speed = DecomposeInDir(target->speed_, collision_dir);
+    //    Vector2D collision_dir = (target->position() - body->position()).Normalize();
+    //    auto body_speed = DecomposeInDir(body->speed(), collision_dir);
+    //    auto target_speed = DecomposeInDir(target->speed(), collision_dir);
     //    if ((target_speed.first - body_speed.first)*collision_dir >= 0.0)
     //        return;
     //    auto result = GetSpeedsAfterCollision(body_speed.first.length(),
     //                                        target_speed.first.length());
-    //    body->speed_ = target_speed.first.Normalize()*result.first + body_speed.second;
-    //    target->speed_ = body_speed.first.Normalize()*result.second + target_speed.second;
-    //    body->set_position(body->last_position_);
-    //    target->set_position(target->last_position_);
+    //    body->set_speed(target_speed.first.Normalize()*result.first + body_speed.second);
+    //    target->set_speed(body_speed.first.Normalize()*result.second + target_speed.second);
     //});
     //body->collision_->MoveTo(body->position_ + Vector2D(0.0, -0.5));
     return body;
@@ -91,7 +90,7 @@ shared_ptr<Body> Body::Create(const ugdk::math::Vector2D& the_position) {
 void Body::set_position(const Vector2D& the_position) {
     last_position_ = position_;
     position_ = the_position;
-    collision_->MoveTo(position_ + Vector2D(0.0, -0.5));
+    //collision_->MoveTo(position_ + Vector2D(0.0, -0.5));
     material_->OnPositionChange();
 }
 

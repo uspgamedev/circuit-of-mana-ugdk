@@ -60,8 +60,6 @@ void SolidMaterial::OnSetupBody() {
                                               target_speed.first.length());
         body()->set_speed(target_speed.first.Normalize()*result.first + body_speed.second);
         target->set_speed(body_speed.first.Normalize()*result.second + target_speed.second);
-        body()->set_position(body()->last_position());
-        target->set_position(target->last_position());
     });
     manager_.AddActiveObject(collision_.get());
     collision_->StartColliding(&manager_);
