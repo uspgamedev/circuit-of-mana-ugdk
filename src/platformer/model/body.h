@@ -104,7 +104,7 @@ class Body final : public ugdk::action::Entity {
     bool                                                      on_floor_;
     double                                                    density_;
     bool                                                      to_be_destroyed_;
-    static std::list<std::shared_ptr<Body>>          bodies;
+    static std::list<std::shared_ptr<Body>>                   bodies;
 };
 
 } // namespace model
