@@ -4,7 +4,7 @@
 
 #include <functional>
 #include <memory>
-#include <vector>
+#include <list>
 #include <ugdk/action.h>
 #include <ugdk/action/animationplayer.h>
 #include <ugdk/action/spriteanimationframe.h>
@@ -22,7 +22,7 @@ class Sprite {
   public:
     Sprite(const std::string& name, ugdk::system::TaskPlayer* task_player);
     void Render(ugdk::graphic::Canvas& canvas,
-                const std::vector<std::shared_ptr<model::Body>>& bodies);
+                const std::list<std::shared_ptr<model::Body>>& bodies);
   private:
     using AnimationPlayer = ugdk::action::AnimationPlayer<ugdk::action::SpriteAnimationFrame>;
     std::unique_ptr<ugdk::graphic::Primitive>           primitive_;

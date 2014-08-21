@@ -93,6 +93,7 @@ class Body final : public ugdk::action::Entity {
     static std::shared_ptr<Body> Create(const ugdk::math::Vector2D& the_position);
     static void MoveAll(const Space& space, const double dt);
     static void CleanUp();
+    static const std::list<std::shared_ptr<Body>>& all() { return bodies; }
   private:
     Body(const ugdk::math::Vector2D& the_position, const double the_density);
     std::string                                               name_;

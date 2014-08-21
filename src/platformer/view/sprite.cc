@@ -40,7 +40,7 @@ using std::bind;
 using std::mem_fn;
 using std::shared_ptr;
 using std::string;
-using std::vector;
+using std::list;
 using namespace std::placeholders;
 
 struct VertexXYUV {
@@ -102,7 +102,7 @@ Sprite::Sprite(const string& name, TaskPlayer* task_player)
     }
 }
 
-void Sprite::Render(Canvas& canvas, const vector<shared_ptr<Body>>& bodies) {
+void Sprite::Render(Canvas& canvas, const list<shared_ptr<Body>>& bodies) {
     ShaderUse shader_use(manager()->shaders().current_shader());
     shared_ptr<const VertexData> data = primitive_->vertexdata();
     shader_use.SendTexture(0, primitive_->texture());

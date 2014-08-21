@@ -3,7 +3,7 @@
 #define CIRCUITOFMANA_VIEW_BLANK_H_
 
 #include <functional>
-#include <vector>
+#include <list>
 #include <ugdk/math.h>
 #include <ugdk/graphic.h>
 #include "model/body.h"
@@ -17,7 +17,7 @@ class Blank {
   public:
     Blank();
     void Render(ugdk::graphic::Canvas& canvas,
-                const std::vector<std::shared_ptr<model::Body>>& bodies);
+                const std::list<std::shared_ptr<model::Body>>& bodies);
   private:
     std::unique_ptr<ugdk::graphic::Primitive> blank_primitive_;
 };

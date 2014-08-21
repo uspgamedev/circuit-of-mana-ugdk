@@ -3,7 +3,7 @@
 #define CIRCUITOFMANA_VIEW_STAGERENDERER_H_
 
 #include <memory>
-#include <vector>
+#include <list>
 #include <ugdk/graphic.h>
 #include <ugdk/system.h>
 #include "model/body.h"
@@ -20,8 +20,7 @@ class StageRenderer final {
     StageRenderer(std::unique_ptr<TileMap>&& the_tilemap,
                   ugdk::system::TaskPlayer* task_player); 
     void Render(ugdk::graphic::Canvas& canvas,
-                const std::vector<std::shared_ptr<model::Body>>& bodies,
-                const std::shared_ptr<model::Body>& mage);
+                const std::list<std::shared_ptr<model::Body>>& bodies);
   private:
     std::unique_ptr<TileMap>  tilemap_;
     Blank                     blank_;

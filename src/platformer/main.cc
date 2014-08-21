@@ -97,11 +97,10 @@ Body::Space space = {
 
 unique_ptr<circuit::view::StageRenderer>  renderer;
 shared_ptr<Body>                          mage;
-vector<shared_ptr<Body>>                  stuff;
 unique_ptr<CollisionManager>              collision_manager;
 
 void Rendering(Canvas& canvas) {
-    renderer->Render(canvas, stuff, mage);
+    renderer->Render(canvas, Body::all());
 }
 
 void CheckInputTask(double /*unused*/) {
@@ -123,22 +122,20 @@ void MoveTask(double dt) {
 
 void AddBlankThing(const Vector2D pos) {
     shared_ptr<Body> new_body = Body::Create(pos);
-    stuff.push_back(new_body);
-    new_body->set_name("thing-" + std::to_string(stuff.size()));
+    new_body->set_name("thing-" + std::to_string(Body::all().size()));
 }
 
 void AddSolid(const Vector2D pos) {
     shared_ptr<Body> new_body = Body::Create(pos);
-    stuff.push_back(new_body);
     new_body->set_material(unique_ptr<SolidMaterial>(new SolidMaterial(new_body, *collision_manager)));
-    new_body->set_name("solid-" + std::to_string(stuff.size()));
+    new_body->set_name("solid-" + std::to_string(Body::all().size()));
 }
 
-void AddFlame(const Vector2D pos) {
+shared_ptr<Body> AddFlame(const Vector2D pos) {
     shared_ptr<Body> new_body = Body::Create(pos);
-    stuff.push_back(new_body);
     new_body->set_material(unique_ptr<FireMaterial>(new FireMaterial(new_body)));
-    new_body->set_name("flame-" + std::to_string(stuff.size()));
+    new_body->set_name("flame-" + std::to_string(Body::all().size()));
+    return new_body;
 }
 
 void GenerateBodies() {
@@ -177,16 +174,14 @@ int main(int argc, char* argv[]) {
             if(ev.scancode == ugdk::input::Scancode::Z && mage->on_floor())
                 mage->ApplyForce(Vector2D(0.0, -1200.0));
             if(ev.scancode == ugdk::input::Scancode::X) {
-                AddFlame(mage->front_position());
-                // WARNING: THE LINES BELOW HURTS
-                stuff.back()->set_density(0.0);
-                stuff.back()->ApplyForce(800.0*mage->front_direction());
+                auto fire = AddFlame(mage->front_position());
+                fire->set_density(0.0);
+                fire->ApplyForce(800.0*mage->front_direction());
             }
         });
     ugdk::system::PushScene(ourscene);
     ugdk::system::Run();
     ugdk::system::Release();
-    stuff.clear();
     mage.reset();
     return 0;
 }
