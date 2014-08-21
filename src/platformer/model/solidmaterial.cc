@@ -80,7 +80,7 @@ void SolidMaterial::OnPhysicsUpdate() {
 }
 
 void SolidMaterial::OnSceneryCollision() {
-
+    
 }
 
 } // namespace model

@@ -1,6 +1,7 @@
 
 #include "model/body.h"
 #include "model/solidmaterial.h"
+#include "model/firematerial.h"
 #include "view/tilemap.h"
 #include "view/stagerenderer.h"
 
@@ -29,6 +30,7 @@ namespace {
 using circuit::view::TileMap;
 using circuit::model::Body;
 using circuit::model::SolidMaterial;
+using circuit::model::FireMaterial;
 using pyramidworks::collision::CollisionManager;
 using ugdk::Color;
 using ugdk::graphic::Canvas;
@@ -110,10 +112,11 @@ void CheckInputTask(double /*unused*/) {
       mage->ApplyForce(MAGE_SPEED*Vector2D(-1.0, 0.0));
 }
 
-void MoveMageTask(double dt) {
+void MoveTask(double dt) {
     lag += dt;
     while (lag >= FRAME_TIME) {
         Body::MoveAll(space, FRAME_TIME);
+        Body::CleanUp();
         lag -= FRAME_TIME;
     }
 }
@@ -129,6 +132,13 @@ void AddSolid(const Vector2D pos) {
     stuff.push_back(new_body);
     new_body->set_material(unique_ptr<SolidMaterial>(new SolidMaterial(new_body, *collision_manager)));
     new_body->set_name("solid-" + std::to_string(stuff.size()));
+}
+
+void AddFlame(const Vector2D pos) {
+    shared_ptr<Body> new_body = Body::Create(pos);
+    stuff.push_back(new_body);
+    new_body->set_material(unique_ptr<FireMaterial>(new FireMaterial(new_body)));
+    new_body->set_name("flame-" + std::to_string(stuff.size()));
 }
 
 void GenerateBodies() {
@@ -159,7 +169,7 @@ int main(int argc, char* argv[]) {
     ourscene->set_render_function(Rendering);
     ourscene->AddTask(Task(CheckInputTask, 0.1));
     ourscene->AddTask(collision_manager->GenerateHandleCollisionTask(0.2));
-    ourscene->AddTask(Task(MoveMageTask, 0.3));
+    ourscene->AddTask(Task(MoveTask, 0.3));
     ourscene->event_handler().AddListener<ugdk::input::KeyPressedEvent>(
         [ourscene](const ugdk::input::KeyPressedEvent& ev) {
             if(ev.scancode == ugdk::input::Scancode::ESCAPE)
@@ -167,7 +177,7 @@ int main(int argc, char* argv[]) {
             if(ev.scancode == ugdk::input::Scancode::Z && mage->on_floor())
                 mage->ApplyForce(Vector2D(0.0, -1200.0));
             if(ev.scancode == ugdk::input::Scancode::X) {
-                AddBlankThing(mage->front_position());
+                AddFlame(mage->front_position());
                 // WARNING: THE LINES BELOW HURTS
                 stuff.back()->set_density(0.0);
                 stuff.back()->ApplyForce(800.0*mage->front_direction());

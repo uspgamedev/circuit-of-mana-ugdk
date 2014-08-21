@@ -3,7 +3,7 @@
 #define CIRCUITOFMANA_MODEL_BODY_H_
 
 #include <memory>
-#include <unordered_set>
+#include <list>
 #include <vector>
 #include <ugdk/action/entity.h>
 #include <ugdk/math/vector2D.h>
@@ -78,6 +78,9 @@ class Body final : public ugdk::action::Entity {
     void ApplyForce(const ugdk::math::Vector2D& the_force) {
         force_ += the_force;
     }
+    void destroy() {
+        to_be_destroyed_ = true;
+    }
     void AddSpeed(const ugdk::math::Vector2D& diff) {
         speed_ += diff;
     }
@@ -89,6 +92,7 @@ class Body final : public ugdk::action::Entity {
                                         const double the_density);
     static std::shared_ptr<Body> Create(const ugdk::math::Vector2D& the_position);
     static void MoveAll(const Space& space, const double dt);
+    static void CleanUp();
   private:
     Body(const ugdk::math::Vector2D& the_position, const double the_density);
     std::string                                               name_;
@@ -99,7 +103,8 @@ class Body final : public ugdk::action::Entity {
     std::unique_ptr<Material>                                 material_;
     bool                                                      on_floor_;
     double                                                    density_;
-    static std::unordered_set<std::shared_ptr<Body>>          bodies;
+    bool                                                      to_be_destroyed_;
+    static std::list<std::shared_ptr<Body>>          bodies;
 };
 
 } // namespace model

@@ -1,8 +1,10 @@
 
 #include "model/body.h"
 
-#include <iostream>
 #include <cmath>
+#include <algorithm>
+#include <functional>
+#include <iostream>
 #include <utility>
 #include <pyramidworks/collision/collisionobject.h>
 #include <pyramidworks/geometry/rect.h>
@@ -18,11 +20,12 @@ using pyramidworks::geometry::Rect;
 using ugdk::Color;
 using ugdk::math::Integer2D;
 using ugdk::math::Vector2D;
+using std::list;
 using std::pair;
 using std::make_pair;
 using std::shared_ptr;
 using std::unique_ptr;
-using std::unordered_set;
+using namespace std::placeholders;
 
 namespace {
 
@@ -36,17 +39,17 @@ bool IsColliding(const Body::Space& space, const Vector2D& position) {
 
 } // unnamed namespace
 
-unordered_set<shared_ptr<Body>> Body::bodies;
+list<shared_ptr<Body>> Body::bodies;
 
 Body::Body(const ugdk::math::Vector2D& the_position, const double the_density)
         : position_(the_position), looking_direction_(LOOKING_RIGHT),
           speed_(0.0, 0.0), force_(0.0, 0.0), material_(new NullMaterial),
-          on_floor_(false), density_(the_density) {}
+          on_floor_(false), density_(the_density), to_be_destroyed_(false) {}
 
 shared_ptr<Body> Body::Create(const ugdk::math::Vector2D& the_position,
                               const double the_density) {
     shared_ptr<Body> body(new Body(the_position, the_density));
-    bodies.insert(body);
+    bodies.push_back(body);
     return body;
 }
 
@@ -84,6 +87,7 @@ void Body::MoveAll(const Space& space, const double dt) {
                     body->on_floor_ = true;
                 body->speed_.y *= 0.0;
             }
+            body->material_->OnSceneryCollision();
         }
         // Round speed to zero if it is too low
         if (body->scalar_speed() < 0.4)
@@ -93,6 +97,12 @@ void Body::MoveAll(const Space& space, const double dt) {
         // Clearn up
         body->force_ *= 0;
     }
+}
+
+void Body::CleanUp() {
+    std::remove_if(
+            bodies.begin(), bodies.end(),
+            [](shared_ptr<Body>& body) -> bool { return body->to_be_destroyed_; });
 }
 
 } // namespace model
