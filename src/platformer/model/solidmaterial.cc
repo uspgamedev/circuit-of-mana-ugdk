@@ -70,6 +70,12 @@ void SolidMaterial::OnPositionChange() {
 }
 
 void SolidMaterial::OnPhysicsUpdate() {
+    // Apply gravity
+    if (body()->density() > 0.0)
+        body()->ApplyForce(Vector2D(0.0, 40.0));
+    // Apply friction
+    body()->ApplyForce(Vector2D(-5.0*body()->speed().x, 0));
+    // Clear collision mask
     collided_.clear();
 }
 

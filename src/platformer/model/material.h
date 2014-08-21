@@ -25,6 +25,15 @@ class Material {
     std::shared_ptr<Body> body_;
 };
 
+class NullMaterial : public Material {
+  public:
+    NullMaterial() : Material(nullptr) {}
+    virtual void OnSetupBody() override {}
+    virtual void OnPhysicsUpdate() override {}
+    virtual void OnPositionChange() override {}
+    virtual void OnSceneryCollision() override {}
+};
+
 } // namespace model
 } // namespace circuit
 

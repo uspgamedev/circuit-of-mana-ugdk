@@ -68,6 +68,9 @@ class Body final : public ugdk::action::Entity {
     bool on_floor() const {
         return on_floor_;
     }
+    double density() const {
+        return density_;
+    }
     void set_density(const double the_density) {
         density_ = the_density;
     }

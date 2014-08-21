@@ -8,6 +8,7 @@
 #include <pyramidworks/geometry/rect.h>
 #include <ugdk/math/integer2D.h>
 #include <ugdk/structure/types.h>
+#include "model/material.h"
 
 namespace circuit {
 namespace model {
@@ -33,27 +34,13 @@ bool IsColliding(const Body::Space& space, const Vector2D& position) {
     return space.tiles[tile_position.y*space.width + tile_position.x] > 0;
 }
 
-pair<Vector2D, Vector2D> DecomposeInDir(Vector2D vec, Vector2D dir) {
-    Vector2D perpendicular = Vector2D(-dir.y, dir.x);
-    return make_pair(dir * (dir * vec), perpendicular * (perpendicular * vec));
-}
-
-pair<double, double> GetSpeedsAfterCollision(double v1, double v2) {
-    double m1 = 1.0, m2 = 1.0;
-    double e = 1.0;
-    return make_pair(
-        ( m2*e*(v2-v1) + (m1*v1) + (m2*v2) ) / (m1 + m2),
-        ( m1*e*(v1-v2) + (m1*v1) + (m2*v2) ) / (m1 + m2)
-    );
-}
-
 } // unnamed namespace
 
 unordered_set<shared_ptr<Body>> Body::bodies;
 
 Body::Body(const ugdk::math::Vector2D& the_position, const double the_density)
         : position_(the_position), looking_direction_(LOOKING_RIGHT),
-          speed_(0.0, 0.0), force_(0.0, 0.0), material_(nullptr),
+          speed_(0.0, 0.0), force_(0.0, 0.0), material_(new NullMaterial),
           on_floor_(false), density_(the_density) {}
 
 shared_ptr<Body> Body::Create(const ugdk::math::Vector2D& the_position,
@@ -79,13 +66,8 @@ void Body::MoveAll(const Space& space, const double dt) {
             body->looking_direction_ = LOOKING_LEFT;
         else if (body->force_.x > 0)
             body->looking_direction_ = LOOKING_RIGHT;
+        // Apply material properties
         body->material_->OnPhysicsUpdate();
-        // Apply gravity
-        if (body->density_ > 0.0)
-            body->ApplyForce(Vector2D(0.0, 40.0));
-        // Apply friction
-        if (body->density_ > 0.0)
-            body->ApplyForce(Vector2D(-5.0*body->speed_.x, 0));
         // Update speed
         body->speed_ += body->force_*dt;
         // Check if body is airborne

@@ -121,8 +121,14 @@ void MoveMageTask(double dt) {
 void AddBlankThing(const Vector2D pos) {
     shared_ptr<Body> new_body = Body::Create(pos);
     stuff.push_back(new_body);
+    new_body->set_name("thing-" + std::to_string(stuff.size()));
+}
+
+void AddSolid(const Vector2D pos) {
+    shared_ptr<Body> new_body = Body::Create(pos);
+    stuff.push_back(new_body);
     new_body->set_material(unique_ptr<SolidMaterial>(new SolidMaterial(new_body, *collision_manager)));
-    new_body->set_name("stuff-" + std::to_string(stuff.size()));
+    new_body->set_name("solid-" + std::to_string(stuff.size()));
 }
 
 void GenerateBodies() {
@@ -132,7 +138,7 @@ void GenerateBodies() {
     std::default_random_engine generator(time(nullptr));
     std::uniform_real_distribution<double> distribution(3.0,20.0);
     for (size_t i = 0; i < BODY_COUNT; ++i)
-        AddBlankThing(Vector2D(distribution(generator), 2.0));
+        AddSolid(Vector2D(distribution(generator), 2.0));
 }
 
 } // unnamed namespace
