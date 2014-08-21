@@ -178,6 +178,13 @@ int main(int argc, char* argv[]) {
                 fire->set_density(0.0);
                 fire->ApplyForce(1500.0*mage->front_direction());
             }
+            if(ev.scancode == ugdk::input::Scancode::C) {
+                for (size_t i = 0; i < 3; ++i) {
+                    auto fire = AddFlame(mage->front_position());
+                    fire->set_density(0.0);
+                    fire->ApplyForce(1500.0*mage->front_direction().Rotate(-0.25 + i*0.25));
+                }
+            }
         });
     ugdk::system::PushScene(ourscene);
     ugdk::system::Run();
