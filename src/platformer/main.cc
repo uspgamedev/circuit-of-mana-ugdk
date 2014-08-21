@@ -176,7 +176,7 @@ int main(int argc, char* argv[]) {
             if(ev.scancode == ugdk::input::Scancode::X) {
                 auto fire = AddFlame(mage->front_position());
                 fire->set_density(0.0);
-                fire->ApplyForce(800.0*mage->front_direction());
+                fire->ApplyForce(1500.0*mage->front_direction());
             }
         });
     ugdk::system::PushScene(ourscene);
