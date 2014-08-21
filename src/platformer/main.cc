@@ -1,5 +1,7 @@
 
 #include "model/body.h"
+#include "model/solidmaterial.h"
+#include "model/firematerial.h"
 #include "view/tilemap.h"
 #include "view/stagerenderer.h"
 
@@ -23,8 +25,12 @@
 #include <pyramidworks/collision/collisionmanager.h>
 #include <pyramidworks/collision/collisionobject.h>
 
+namespace {
+
 using circuit::view::TileMap;
 using circuit::model::Body;
+using circuit::model::SolidMaterial;
+using circuit::model::FireMaterial;
 using pyramidworks::collision::CollisionManager;
 using ugdk::Color;
 using ugdk::graphic::Canvas;
@@ -35,8 +41,6 @@ using ugdk::system::Task;
 using std::unique_ptr;
 using std::vector;
 using std::shared_ptr;
-
-namespace {
 
 const double MAGE_SPEED = 30.0;
 const double FRAME_TIME = 1.0/60.0;
@@ -93,11 +97,10 @@ Body::Space space = {
 
 unique_ptr<circuit::view::StageRenderer>  renderer;
 shared_ptr<Body>                          mage;
-vector<shared_ptr<Body>>                  stuff;
 unique_ptr<CollisionManager>              collision_manager;
 
 void Rendering(Canvas& canvas) {
-    renderer->Render(canvas, stuff, mage);
+    renderer->Render(canvas, Body::all());
 }
 
 void CheckInputTask(double /*unused*/) {
@@ -108,31 +111,41 @@ void CheckInputTask(double /*unused*/) {
       mage->ApplyForce(MAGE_SPEED*Vector2D(-1.0, 0.0));
 }
 
-void MoveMageTask(double dt) {
+void MoveTask(double dt) {
     lag += dt;
     while (lag >= FRAME_TIME) {
         Body::MoveAll(space, FRAME_TIME);
+        Body::CleanUp();
         lag -= FRAME_TIME;
     }
 }
 
 void AddBlankThing(const Vector2D pos) {
     shared_ptr<Body> new_body = Body::Create(pos);
-    stuff.push_back(new_body);
-    collision_manager->AddActiveObject(new_body->collision());
-    new_body->collision()->StartColliding(collision_manager.get());
-    //new_body->set_name("stuff-" + std::to_string(i));
+    new_body->set_name("thing-" + std::to_string(Body::all().size()));
+}
+
+void AddSolid(const Vector2D pos) {
+    shared_ptr<Body> new_body = Body::Create(pos);
+    new_body->set_material(unique_ptr<SolidMaterial>(new SolidMaterial(new_body, *collision_manager)));
+    new_body->set_name("solid-" + std::to_string(Body::all().size()));
+}
+
+shared_ptr<Body> AddFlame(const Vector2D pos) {
+    shared_ptr<Body> new_body = Body::Create(pos);
+    new_body->set_material(unique_ptr<FireMaterial>(new FireMaterial(new_body)));
+    new_body->set_name("flame-" + std::to_string(Body::all().size()));
+    return new_body;
 }
 
 void GenerateBodies() {
     mage = Body::Create(Vector2D(2.0, 2.0));
     mage->set_name("mage");
-    collision_manager->AddActiveObject(mage->collision());
-    mage->collision()->StartColliding(collision_manager.get());
+    mage->set_material(unique_ptr<SolidMaterial>(new SolidMaterial(mage, *collision_manager)));
     std::default_random_engine generator(time(nullptr));
     std::uniform_real_distribution<double> distribution(3.0,20.0);
     for (size_t i = 0; i < BODY_COUNT; ++i)
-        AddBlankThing(Vector2D(distribution(generator), 2.0));
+        AddSolid(Vector2D(distribution(generator), 2.0));
 }
 
 } // unnamed namespace
@@ -145,6 +158,7 @@ int main(int argc, char* argv[]) {
     collision_manager = unique_ptr<CollisionManager>(new CollisionManager(
               Box<2>({-1.0, -1.0},{25.0, 19.0})));
     collision_manager->Find("body");
+    collision_manager->Find("arcane");
     ugdk::action::Scene* ourscene = new ugdk::action::Scene;
     GenerateBodies();
     renderer.reset(new circuit::view::StageRenderer(
@@ -152,7 +166,7 @@ int main(int argc, char* argv[]) {
     ourscene->set_render_function(Rendering);
     ourscene->AddTask(Task(CheckInputTask, 0.1));
     ourscene->AddTask(collision_manager->GenerateHandleCollisionTask(0.2));
-    ourscene->AddTask(Task(MoveMageTask, 0.3));
+    ourscene->AddTask(Task(MoveTask, 0.3));
     ourscene->event_handler().AddListener<ugdk::input::KeyPressedEvent>(
         [ourscene](const ugdk::input::KeyPressedEvent& ev) {
             if(ev.scancode == ugdk::input::Scancode::ESCAPE)
@@ -160,16 +174,14 @@ int main(int argc, char* argv[]) {
             if(ev.scancode == ugdk::input::Scancode::Z && mage->on_floor())
                 mage->ApplyForce(Vector2D(0.0, -1200.0));
             if(ev.scancode == ugdk::input::Scancode::X) {
-                AddBlankThing(mage->front());
-                // WARNING: THE LINES BELOW HURTS
-                stuff.back()->set_density(0.0);
-                stuff.back()->ApplyForce(Vector2D(800.0, 0.0));
+                auto fire = AddFlame(mage->front_position());
+                fire->set_density(0.0);
+                fire->ApplyForce(800.0*mage->front_direction());
             }
         });
     ugdk::system::PushScene(ourscene);
     ugdk::system::Run();
     ugdk::system::Release();
-    stuff.clear();
     mage.reset();
     return 0;
 }
