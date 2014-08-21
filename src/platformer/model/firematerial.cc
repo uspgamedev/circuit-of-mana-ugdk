@@ -17,7 +17,6 @@ FireMaterial::FireMaterial(const shared_ptr<Body>& the_body)
     : Material(the_body) {}
 
 void FireMaterial::OnSceneryCollision() {
-    std::cout << "Fire!" << std::endl;
     body()->destroy();
 }
 

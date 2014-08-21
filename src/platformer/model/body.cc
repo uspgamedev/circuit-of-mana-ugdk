@@ -100,9 +100,10 @@ void Body::MoveAll(const Space& space, const double dt) {
 }
 
 void Body::CleanUp() {
-    std::remove_if(
+    auto end = std::remove_if(
             bodies.begin(), bodies.end(),
             [](shared_ptr<Body>& body) -> bool { return body->to_be_destroyed_; });
+    bodies.erase(end, bodies.end());
 }
 
 } // namespace model
