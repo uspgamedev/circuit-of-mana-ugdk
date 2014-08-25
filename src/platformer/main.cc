@@ -43,9 +43,10 @@ using std::list;
 using std::shared_ptr;
 using std::string;
 
-const double MAGE_SPEED = 30.0;
-const double FRAME_TIME = 1.0/60.0;
-const size_t BODY_COUNT = 2;
+const double MAGE_SPEED       = 30.0;
+const double FRAME_TIME       = 1.0/60.0;
+const size_t BODY_COUNT       = 2;
+const size_t SHOOTING_PERIOD  = 2*60;
 
 TileMap::Data data = {
     24, 18,
@@ -99,7 +100,7 @@ unique_ptr<circuit::view::StageRenderer>  renderer;
 shared_ptr<Body>                          mage;
 unique_ptr<CollisionManager>              collision_manager;
 double                                    lag = 0.0;
-size_t                                    counter = 2*60;
+size_t                                    counter = SHOOTING_PERIOD;
 
 void Rendering(Canvas& canvas) {
     renderer->Render(canvas, Body::all());
@@ -144,7 +145,7 @@ void MoveTask(double dt) {
                 AddFlame(body->position())->ApplyForce(1500.0*Vector2D(0.0, -1.0));
                 AddFlame(body->position())->ApplyForce(1500.0*Vector2D(-1.0, 0.0));
             }
-            counter = 2*60;
+            counter = SHOOTING_PERIOD;
         }
         Body::MoveAll(space, FRAME_TIME);
         Body::CleanUp();
