@@ -10,7 +10,7 @@
 #include <memory>
 #include <random>
 #include <string>
-#include <vector>
+#include <list>
 #include <libjson.h>
 #include <ugdk/action/scene.h>
 #include <ugdk/graphic/canvas.h>
@@ -39,13 +39,14 @@ using ugdk::structure::Box;
 using ugdk::system::Configuration;
 using ugdk::system::Task;
 using std::unique_ptr;
-using std::vector;
+using std::list;
 using std::shared_ptr;
+using std::string;
 
-const double MAGE_SPEED = 30.0;
-const double FRAME_TIME = 1.0/60.0;
-const size_t BODY_COUNT = 2;
-double lag = 0.0;
+const double MAGE_SPEED       = 30.0;
+const double FRAME_TIME       = 1.0/60.0;
+const size_t BODY_COUNT       = 2;
+const size_t SHOOTING_PERIOD  = 2*60;
 
 TileMap::Data data = {
     24, 18,
@@ -98,6 +99,8 @@ Body::Space space = {
 unique_ptr<circuit::view::StageRenderer>  renderer;
 shared_ptr<Body>                          mage;
 unique_ptr<CollisionManager>              collision_manager;
+double                                    lag = 0.0;
+size_t                                    counter = SHOOTING_PERIOD;
 
 void Rendering(Canvas& canvas) {
     renderer->Render(canvas, Body::all());
@@ -109,15 +112,6 @@ void CheckInputTask(double /*unused*/) {
       mage->ApplyForce(MAGE_SPEED*Vector2D(1.0, 0.0));
     if (input->keyboard().IsDown(ugdk::input::Scancode::LEFT))
       mage->ApplyForce(MAGE_SPEED*Vector2D(-1.0, 0.0));
-}
-
-void MoveTask(double dt) {
-    lag += dt;
-    while (lag >= FRAME_TIME) {
-        Body::MoveAll(space, FRAME_TIME);
-        Body::CleanUp();
-        lag -= FRAME_TIME;
-    }
 }
 
 void AddBlankThing(const Vector2D pos) {
@@ -136,6 +130,27 @@ shared_ptr<Body> AddFlame(const Vector2D pos) {
     new_body->set_material(unique_ptr<FireMaterial>(new FireMaterial(new_body)));
     new_body->set_name("flame-" + std::to_string(Body::all().size()));
     return new_body;
+}
+
+void MoveTask(double dt) {
+    lag += dt;
+    while (lag >= FRAME_TIME) {
+        if (--counter == 0) {
+            list<shared_ptr<Body>> launchers;
+            for (auto& body : Body::all())
+                if (body->name().find("solid") != string::npos)
+                    launchers.push_back(body);
+            for (auto& body : launchers) {
+                AddFlame(body->position())->ApplyForce(1500.0*Vector2D(1.0, 0.0));
+                AddFlame(body->position())->ApplyForce(1500.0*Vector2D(0.0, -1.0));
+                AddFlame(body->position())->ApplyForce(1500.0*Vector2D(-1.0, 0.0));
+            }
+            counter = SHOOTING_PERIOD;
+        }
+        Body::MoveAll(space, FRAME_TIME);
+        Body::CleanUp();
+        lag -= FRAME_TIME;
+    }
 }
 
 void GenerateBodies() {
