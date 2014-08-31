@@ -18,10 +18,6 @@ else (EXISTS ${CMAKE_SOURCE_DIR}/local/ugdk)
   set (UGDK_SUBDIR externals/ugdk)
 endif ()
 
-if (CMAKE_COMPILER_IS_GNUCC)
-  add_definitions (-std=gnu++0x)
-endif ()
-
 add_custom_target (
   assets
   COMMAND ${CMAKE_COMMAND} -E remove_directory
