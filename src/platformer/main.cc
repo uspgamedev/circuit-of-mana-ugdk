@@ -171,7 +171,7 @@ int main(int argc, char* argv[]) {
     assert(ugdk::system::Initialize(config));
     ugdk::system::text_manager()->AddFont("default", "fonts/Filmcrypob.ttf", 24.0);
     collision_manager = unique_ptr<CollisionManager>(new CollisionManager(
-              Box<2>({-1.0, -1.0},{25.0, 19.0})));
+              Box<2>({{-1.0, -1.0}},{{25.0, 19.0}})));
     collision_manager->Find("body");
     collision_manager->Find("arcane");
     ugdk::action::Scene* ourscene = new ugdk::action::Scene;
