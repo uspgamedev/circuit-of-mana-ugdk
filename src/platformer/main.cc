@@ -166,19 +166,26 @@ void GenerateBodies() {
 } // unnamed namespace
 
 int main(int argc, char* argv[]) {
+    // Game configuration
     Configuration config;
     config.base_path = "assets/";
+    // Initialize engine
     assert(ugdk::system::Initialize(config));
+    // Register font
     ugdk::system::text_manager()->AddFont("default", "fonts/Filmcrypob.ttf", 24.0);
+    // Set collisions up
     collision_manager = unique_ptr<CollisionManager>(new CollisionManager(
               Box<2>({{-1.0, -1.0}},{{25.0, 19.0}})));
     collision_manager->Find("body");
     collision_manager->Find("arcane");
+    // Create scene
     ugdk::action::Scene* ourscene = new ugdk::action::Scene;
     GenerateBodies();
+    // Set renderer up
     renderer.reset(new circuit::view::StageRenderer(
               TileMap::Create("sample", data), ourscene));
     ourscene->set_render_function(Rendering);
+    // Add scene tasks
     ourscene->AddTask(Task(CheckInputTask, 0.1));
     ourscene->AddTask(collision_manager->GenerateHandleCollisionTask(0.2));
     ourscene->AddTask(Task(MoveTask, 0.3));
@@ -186,7 +193,7 @@ int main(int argc, char* argv[]) {
         [ourscene](const ugdk::input::KeyPressedEvent& ev) {
             if(ev.scancode == ugdk::input::Scancode::ESCAPE)
                 ourscene->Finish();
-            if(ev.scancode == ugdk::input::Scancode::Z && mage->on_floor())
+            if((ev.scancode == ugdk::input::Scancode::Z) && mage->on_floor())
                 mage->ApplyForce(Vector2D(0.0, -1200.0));
             if(ev.scancode == ugdk::input::Scancode::X) {
                 auto fire = AddFlame(mage->front_position());
