@@ -45,9 +45,9 @@ SolidMaterial::SolidMaterial(const shared_ptr<Body>& the_body, CollisionManager&
 
 void SolidMaterial::OnSetupBody() {
     collision_.reset(new CollisionObject(
-          body().get(), "solid", new Rect(1.0, 1.0)));
+          body().get(), "solid", unique_ptr<Rect>(new Rect(1.0, 1.0))));
     collision_->AddCollisionLogic("solid", [this] (const CollisionObject* other) {
-        Body* target = dynamic_cast<Body*>(other->owner());
+        Body* target = dynamic_cast<Body*>(other->data());
         if (this->collided_.count(target) > 0)
             return;
         dynamic_cast<SolidMaterial&>(target->material()).collided_.insert(body().get());

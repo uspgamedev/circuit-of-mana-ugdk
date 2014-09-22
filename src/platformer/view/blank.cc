@@ -3,11 +3,14 @@
 
 #include <memory>
 #include <ugdk/graphic/canvas.h>
+#include <ugdk/graphic/drawmode.h>
 #include <ugdk/graphic/geometry.h>
+#include <ugdk/graphic/manager.h>
 #include <ugdk/graphic/module.h>
-#include <ugdk/graphic/opengl/shaderuse.h>
 #include <ugdk/graphic/primitive.h>
+#include <ugdk/graphic/textureunit.h>
 #include <ugdk/graphic/vertexdata.h>
+#include <ugdk/internal/opengl.h>
 
 namespace circuit {
 namespace view {
@@ -16,12 +19,13 @@ namespace {
 
 using model::Body;
 using ugdk::graphic::Canvas;
+using ugdk::graphic::DrawMode;
 using ugdk::graphic::Geometry;
 using ugdk::graphic::manager;
-using ugdk::graphic::opengl::ShaderUse;
-using ugdk::graphic::opengl::VertexType;
 using ugdk::graphic::Primitive;
+using ugdk::graphic::TextureUnit;
 using ugdk::graphic::VertexData;
+using ugdk::graphic::VertexType;
 using std::shared_ptr;
 using std::list;
 
@@ -46,18 +50,14 @@ Blank::Blank() : blank_primitive_(nullptr) {
 }
 
 void Blank::Render(Canvas& canvas, const list<shared_ptr<Body>>& bodies) {
-    ShaderUse shader_use(manager()->shaders().current_shader());
+    //ShaderUse shader_use(manager()->shaders().current_shader());
     shared_ptr<const VertexData> data = blank_primitive_->vertexdata();
-    shader_use.SendTexture(0, blank_primitive_->texture());
-    shader_use.SendVertexBuffer(data->buffer().get(), VertexType::VERTEX, 0, 2,
-                                data->vertex_size());
-    shader_use.SendVertexBuffer(data->buffer().get(), VertexType::TEXTURE,
-                                2*sizeof(GLfloat), 2, data->vertex_size());
+    TextureUnit holdit = manager()->ReserveTextureUnit(blank_primitive_->texture());
+    canvas.SendVertexData(*data, VertexType::VERTEX, 0, 2);
+    canvas.SendVertexData(*data, VertexType::TEXTURE, 2*sizeof(GLfloat), 2);
     for (auto& body : bodies) {
       canvas.PushAndCompose(Geometry(body->position() * 32.0));
-      shader_use.SendGeometry(canvas.current_geometry());
-      shader_use.SendEffect(canvas.current_visualeffect());
-      glDrawArrays(GL_TRIANGLE_STRIP, 0, data->num_vertices());
+      canvas.DrawArrays(DrawMode::TRIANGLE_STRIP(), 0, data->num_vertices());
       canvas.PopGeometry();
     }
 }

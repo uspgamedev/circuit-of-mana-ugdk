@@ -5,17 +5,17 @@
 #include <memory>
 #include <list>
 #include <vector>
-#include <ugdk/action/entity.h>
 #include <ugdk/math/vector2D.h>
 #include <pyramidworks/collision.h>
 #include <pyramidworks/geometry.h>
+#include <pyramidworks/collision/collisiondata.h>
 
 #include "model/solidmaterial.h"
 
 namespace circuit {
 namespace model {
 
-class Body final : public ugdk::action::Entity {
+class Body final : public pyramidworks::collision::CollisionData {
   public:
     enum LookingDirection {
         LOOKING_RIGHT,
@@ -87,7 +87,6 @@ class Body final : public ugdk::action::Entity {
     void AddSpeed(const double dx, const double dy) {
         AddSpeed(ugdk::math::Vector2D(dx, dy));
     }
-    void Update(double dt) override {}
     static std::shared_ptr<Body> Create(const ugdk::math::Vector2D& the_position,
                                         const double the_density);
     static std::shared_ptr<Body> Create(const ugdk::math::Vector2D& the_position);
