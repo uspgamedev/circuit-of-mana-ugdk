@@ -17,7 +17,7 @@
 /* #undef UGDK_SWIG_ENABLED */
 /* #undef UGDK_LUA_ENABLED */
 /* #undef UGDK_PYTHON_ENABLED */
-#define UGDK_3D_ENABLED
+/* #undef UGDK_3D_ENABLED */
 #define UGDK_ENABLED(X) UGDK_##X##_ENABLED
 
 #ifdef ANDROID

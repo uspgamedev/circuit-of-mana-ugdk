@@ -8,12 +8,14 @@
 #include <ugdk/math/integer2D.h>
 #include <ugdk/math/vector2D.h>
 #include <ugdk/graphic/canvas.h>
+#include <ugdk/graphic/drawmode.h>
 #include <ugdk/graphic/geometry.h>
 #include <ugdk/graphic/module.h>
-#include <ugdk/graphic/opengl/shaderuse.h>
 #include <ugdk/graphic/textureatlas.h>
 #include <ugdk/graphic/primitive.h>
+#include <ugdk/graphic/textureunit.h>
 #include <ugdk/graphic/vertexdata.h>
+#include <ugdk/internal/opengl.h>
 #include <ugdk/system/task.h>
 #include <ugdk/system/taskplayer.h>
 
@@ -27,11 +29,12 @@ using ugdk::action::LoadSpriteAnimationTableFromFile;
 using ugdk::math::Integer2D;
 using ugdk::math::Vector2D;
 using ugdk::graphic::Canvas;
+using ugdk::graphic::DrawMode;
 using ugdk::graphic::Geometry;
 using ugdk::graphic::manager;
-using ugdk::graphic::opengl::ShaderUse;
-using ugdk::graphic::opengl::VertexType;
+using ugdk::graphic::VertexType;
 using ugdk::graphic::TextureAtlas;
+using ugdk::graphic::TextureUnit;
 using ugdk::graphic::Primitive;
 using ugdk::graphic::VertexData;
 using ugdk::system::Task;
@@ -89,7 +92,8 @@ Sprite::Sprite(const string& name, TaskPlayer* task_player)
     // Load tileset
     sheet_.reset(TextureAtlas::LoadFromFile("spritesheets/"+name));
     // Create primitive
-    shared_ptr<VertexData> data(new VertexData(sheet_->piece_num(), sizeof(Frame), false));
+    shared_ptr<VertexData> data(new VertexData(sheet_->piece_num(),
+                                               sizeof(Frame), false));
     primitive_.reset(new Primitive(sheet_->texture(), data));
     // Prepare primitive
     data->CheckSizes("CreatingSprite", animation_table_->size(), sizeof(Frame));
@@ -103,15 +107,10 @@ Sprite::Sprite(const string& name, TaskPlayer* task_player)
 }
 
 void Sprite::Render(Canvas& canvas, const list<shared_ptr<Body>>& bodies) {
-    ShaderUse shader_use(manager()->shaders().current_shader());
     shared_ptr<const VertexData> data = primitive_->vertexdata();
-    shader_use.SendTexture(0, primitive_->texture());
-    shader_use.SendVertexBuffer(data->buffer().get(), VertexType::VERTEX,
-                                0, 2,
-                                data->vertex_size()/4);
-    shader_use.SendVertexBuffer(data->buffer().get(), VertexType::TEXTURE,
-                                2*sizeof(GLfloat), 2,
-                                data->vertex_size()/4);
+    TextureUnit holdit = manager()->ReserveTextureUnit(primitive_->texture());
+    canvas.SendVertexData(*data, VertexType::VERTEX, 0, 2, 4);
+    canvas.SendVertexData(*data, VertexType::TEXTURE, 2*sizeof(GLfloat), 2, 4);
     for (auto& body : bodies) {
         // Animation frame
         animation_player_->Select(DiscoverAnimationName(body));
@@ -123,10 +122,8 @@ void Sprite::Render(Canvas& canvas, const list<shared_ptr<Body>>& bodies) {
         if (frame.mirror() & ugdk::MIRROR_HFLIP)
             geom *= Geometry(Vector2D(), Vector2D(-1.0, 1.0));
         canvas.PushAndCompose(geom);
-        shader_use.SendGeometry(canvas.current_geometry());
-        shader_use.SendEffect(canvas.current_visualeffect());
         // Draw
-        glDrawArrays(GL_TRIANGLE_STRIP, frame_index*4, 4u);
+        canvas.DrawArrays(DrawMode::TRIANGLE_STRIP(), frame_index*4, 4u);
         // Clean up
         canvas.PopGeometry();
     }

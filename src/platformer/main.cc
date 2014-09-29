@@ -15,7 +15,6 @@
 #include <ugdk/action/scene.h>
 #include <ugdk/graphic/canvas.h>
 #include <ugdk/graphic/primitive.h>
-#include <ugdk/graphic/text/textmanager.h>
 #include <ugdk/input/events.h>
 #include <ugdk/input/module.h>
 #include <ugdk/structure/types.h>
@@ -171,8 +170,6 @@ int main(int argc, char* argv[]) {
     config.base_path = "assets/";
     // Initialize engine
     assert(ugdk::system::Initialize(config));
-    // Register font
-    ugdk::system::text_manager()->AddFont("default", "fonts/Filmcrypob.ttf", 24.0);
     // Set collisions up
     collision_manager = unique_ptr<CollisionManager>(new CollisionManager(
               Box<2>({{-1.0, -1.0}},{{25.0, 19.0}})));
@@ -208,7 +205,7 @@ int main(int argc, char* argv[]) {
                 }
             }
         });
-    ugdk::system::PushScene(ourscene);
+    ugdk::system::PushScene(unique_ptr<ugdk::action::Scene>(ourscene));
     ugdk::system::Run();
     ugdk::system::Release();
     mage.reset();

@@ -4,12 +4,14 @@
 #include <iostream>
 
 #include <ugdk/graphic/canvas.h>
+#include <ugdk/graphic/drawmode.h>
 #include <ugdk/graphic/manager.h>
 #include <ugdk/graphic/module.h>
 #include <ugdk/graphic/textureatlas.h>
 #include <ugdk/graphic/primitive.h>
+#include <ugdk/graphic/textureunit.h>
 #include <ugdk/graphic/vertexdata.h>
-#include <ugdk/graphic/opengl/shaderuse.h>
+#include <ugdk/internal/opengl.h>
 
 namespace circuit {
 namespace view {
@@ -21,13 +23,14 @@ using std::shared_ptr;
 using std::string;
 
 using ugdk::graphic::Canvas;
+using ugdk::graphic::DrawMode;
 using ugdk::graphic::Manager;
 using ugdk::graphic::TextureAtlas;
 using ugdk::graphic::Primitive;
+using ugdk::graphic::TextureUnit;
 using ugdk::graphic::VertexData;
-using ugdk::graphic::opengl::ShaderUse;
+using ugdk::graphic::VertexType;
 using ugdk::graphic::manager;
-using ugdk::graphic::opengl::VertexType;
 
 struct VertexXYUV {
     GLfloat x, y, u, v;
@@ -61,18 +64,14 @@ struct Tile {
     }
 };
 
-void DrawTileMap(const Primitive& map_primitive, ShaderUse& shader_use) {
+void DrawTileMap(const Primitive& map_primitive, Canvas& canvas) {
     shared_ptr<const VertexData> data = map_primitive.vertexdata();
 
-    shader_use.SendTexture(0, map_primitive.texture());
-    shader_use.SendVertexBuffer(data->buffer().get(), VertexType::VERTEX, 0, 2,
-                                data->vertex_size()/6);
-    shader_use.SendVertexBuffer(data->buffer().get(), VertexType::TEXTURE,
-                                2*sizeof(GLfloat), 2, data->vertex_size()/6);
-    glDrawArrays(GL_TRIANGLES, 0, data->num_vertices()*6);
+    TextureUnit holdit = manager()->ReserveTextureUnit(map_primitive.texture());
+    canvas.SendVertexData(*data, VertexType::VERTEX, 0, 2, 6);
+    canvas.SendVertexData(*data, VertexType::TEXTURE, 2*sizeof(GLfloat), 2, 6);
+    canvas.DrawArrays(DrawMode::TRIANGLES(), 0, data->num_vertices()*6);
 }
-
-
 
 } // unnamed namespace
 
@@ -107,12 +106,7 @@ TileMap::Ptr TileMap::Create(const string& name, const Data& tiles) {
 }
 
 void TileMap::Render(Canvas& canvas) const {
-    ShaderUse shader_use(manager()->shaders().current_shader());
-
-    shader_use.SendGeometry(canvas.current_geometry());
-    shader_use.SendEffect(canvas.current_visualeffect());
-
-    map_primitive_->drawfunction()(*map_primitive_, shader_use);
+    map_primitive_->drawfunction()(*map_primitive_, canvas);
 }
 
 TileMap::TileMap() : tileset_(nullptr), map_primitive_(nullptr) {}
